@@ -1,0 +1,22 @@
+@import "tailwindcss";
+
+@theme inline {
+    --color-background: hsl(0 0% 100%);
+    --color-foreground: hsl(0 0% 3.9%);
+    --color-card: hsl(0 0% 100%);
+    /* map all your variables as --color-xxx */
+    --radius: 0.5rem;
+    /* sidebar ones too */
+}
+
+@layer base {
+    :root {
+        --background: 0 0% 100%;
+        --foreground: 0 0% 3.9%;
+        /* keep declaring the raw values here if needed */
+    }
+    .dark {
+        --background: 0 0% 3.9%;
+        /* ... */
+    }
+}
