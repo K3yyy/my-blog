@@ -1,4 +1,4 @@
-// types/index.ts
+
 import type { LucideIcon } from "lucide-react";
 
 export interface CardBaseProps {
@@ -9,13 +9,18 @@ export interface CardBaseProps {
     category: string;
     slug?: string;
 }
+export type ArticleCardProps = CardBaseProps
 
 export interface FeaturedCardProps extends CardBaseProps {
-    icon: React.ReactNode; // or LucideIcon if you want stricter typing
+    icon: LucideIcon; // or LucideIcon if you want stricter typing
 }
 
-export interface ArticleCardProps extends CardBaseProps {
-    // can add more specific fields later if needed
+export interface TopicCards  {
+    title: string;
+    description: string;
+    icon: string;
+    count: number;
+
 }
 
 export interface NewsletterFormProps {
@@ -24,3 +29,6 @@ export interface NewsletterFormProps {
     isSubmitting: boolean;
     handleSubscribe: (e: React.FormEvent) => Promise<void>;
 }
+
+
+

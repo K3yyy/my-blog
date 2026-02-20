@@ -1,0 +1,132 @@
+"use client"
+
+import Link from "next/link"
+import { Button } from "@/components/ui/button"
+import { useRouter } from "next/navigation"
+import {Footer} from "@/components/Footer";
+import {ArticleCard} from "@/components/ArticleCard";
+
+// Static article data for GitHub Pages
+const articles = [
+    
+    {
+        title: "Talking to Strangers: Fear, Awkwardness, and Unexpected Wisdom",
+        description:
+            "What happens when you step outside your comfort zone and start conversations with people you don’t know?",
+        category: "Life Experiments",
+        date: "July 5, 2023",
+        slug: "talking-to-strangers",
+        image: "https://images.unsplash.com/photo-1529156069898-49953e39b3ac?q=80&w=600&h=400&auto=format&fit=crop",
+    },
+    {
+        title: "Midnight Thoughts That Changed My Perspective",
+        description:
+            "There’s something about quiet nights that brings strange but powerful realizations. Reflections from 2AM thinking sessions.",
+        category: "Unexpected Lessons",
+        date: "July 18, 2023",
+        slug: "midnight-thoughts",
+        image: "https://images.unsplash.com/photo-1500534314209-a25ddb2bd429?q=80&w=600&h=400&auto=format&fit=crop",
+    },
+    {
+        title: "The Beauty of Doing Nothing",
+        description:
+            "In a world obsessed with productivity, choosing stillness can feel rebellious. Learning from moments of pause.",
+        category: "Mind & Curiosity",
+        date: "August 3, 2023",
+        slug: "beauty-of-doing-nothing",
+        image: "https://images.unsplash.com/photo-1470770841072-f978cf4d019e?q=80&w=600&h=400&auto=format&fit=crop",
+    },
+    {
+        title: "Embracing Awkward Silence",
+        description:
+            "Why uncomfortable silence isn’t something to escape, but something to understand.",
+        category: "The Weird & Wonderful",
+        date: "August 15, 2023",
+        slug: "embracing-awkward-silence",
+        image: "https://images.unsplash.com/photo-1519681393784-d120267933ba?q=80&w=600&h=400&auto=format&fit=crop",
+    },
+    {
+        title: "Lessons I Learned From Failing Publicly",
+        description:
+            "Embarrassment, vulnerability, and growth — how public mistakes can shape stronger confidence.",
+        category: "Life Experiments",
+        date: "September 2, 2023",
+        slug: "failing-publicly",
+        image: "https://images.unsplash.com/photo-1492724441997-5dc865305da7?q=80&w=600&h=400&auto=format&fit=crop",
+    },
+    {
+        title: "Chasing Curiosity Instead of Perfection",
+        description:
+            "Why curiosity leads to a more meaningful life than trying to get everything right.",
+        category: "Unexpected Lessons",
+        date: "September 20, 2023",
+        slug: "chasing-curiosity",
+        image: "https://images.unsplash.com/photo-1501785888041-af3ef285b470?q=80&w=600&h=400&auto=format&fit=crop",
+    },
+]
+
+export default function ArticlesPage() {
+    const router = useRouter()
+
+    const handleSubscribeClick = () => {
+        router.push("/#newsletter")
+    }
+
+    return (
+        <div className="min-h-screen bg-black text-white">
+            <header className="container mx-auto py-6">
+                <div className="flex items-center justify-between">
+                    <Link href="/" className="text-xl font-bold tracking-tighter">
+                        Neural<span className="text-purple-500">Pulse</span>
+                    </Link>
+                    <nav className="hidden md:flex items-center space-x-6 text-sm">
+                        <Link href="/" className="text-gray-400 hover:text-white transition-colors">
+                            Home
+                        </Link>
+                        <Link href="/articles/" className="text-white transition-colors border-b-2 border-purple-500 pb-1">
+                            Articles
+                        </Link>
+                        <Link href="/topics/" className="text-gray-400 hover:text-white transition-colors">
+                            Topics
+                        </Link>
+                        <Link href="/about/" className="text-gray-400 hover:text-white transition-colors">
+                            About
+                        </Link>
+                    </nav>
+                    <Button
+                        variant="outline"
+                        className="border-purple-500 text-purple-500 hover:bg-purple-950 hover:text-white"
+                        onClick={handleSubscribeClick}
+                    >
+                        Subscribe
+                    </Button>
+                </div>
+            </header>
+
+            <main className="container mx-auto px-4 py-12">
+                <section className="mb-12">
+                    <h1 className="text-4xl font-bold mb-8">All Articles</h1>
+
+                    <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        {articles.map((article, index) => (
+                            <ArticleCard
+                                key={index}
+                                title={article.title}
+                                description={article.description}
+                                category={article.category}
+                                date={article.date}
+                                slug={article.slug}
+                                image={article.image}
+                            />
+                        ))}
+                    </div>
+                </section>
+            </main>
+
+            <Footer/>
+        </div>
+    )
+}
+
+
+
