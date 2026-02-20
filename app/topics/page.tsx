@@ -6,6 +6,7 @@ import { BrainCircuit, Cpu, Eye, Github, Linkedin, Mail, Rss, Twitter } from "lu
 import { useRouter } from "next/navigation"
 import {TopicCard} from "@/components/TopicCard";
 import {Footer} from "@/components/Footer";
+import {Header} from "@/components/Header";
 
 // Static topic data for GitHub Pages
 const topics = [
@@ -49,34 +50,7 @@ export default function TopicsPage() {
 
     return (
         <div className="min-h-screen bg-black text-white">
-            <header className="container mx-auto py-6">
-                <div className="flex items-center justify-between">
-                    <Link href="/" className="text-xl font-bold tracking-tighter">
-                        Neural<span className="text-purple-500">Pulse</span>
-                    </Link>
-                    <nav className="hidden md:flex items-center space-x-6 text-sm">
-                        <Link href="/" className="text-gray-400 hover:text-white transition-colors">
-                            Home
-                        </Link>
-                        <Link href="/articles/" className="text-gray-400 hover:text-white transition-colors">
-                            Articles
-                        </Link>
-                        <Link href="/topics/" className="text-white transition-colors border-b-2 border-purple-500 pb-1">
-                            Topics
-                        </Link>
-                        <Link href="/about/" className="text-gray-400 hover:text-white transition-colors">
-                            About
-                        </Link>
-                    </nav>
-                    <Button
-                        variant="outline"
-                        className="border-purple-500 text-purple-500 hover:bg-purple-950 hover:text-white"
-                        onClick={handleSubscribeClick}
-                    >
-                        Subscribe
-                    </Button>
-                </div>
-            </header>
+           <Header onSubscribeClick={handleSubscribeClick} />
 
             <main className="container mx-auto px-4 py-12">
                 <section className="mb-12">

@@ -6,6 +6,8 @@ import Image from "next/image"
 import { ArrowLeft, BrainCircuit, Clock, Share2, Twitter, Facebook, Linkedin } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { useToast } from "@/components/ui/use-toast"
+import {Header} from "@/components/Header";
+import {router} from "next/client";
 
 type Post = {
     title: string
@@ -28,6 +30,9 @@ export function BlogPostClient({ post, slug }: { post: Post; slug: string }) {
 
     const pageUrl = typeof window !== "undefined" ? window.location.href : ""
     const shareText = `Check out this article: ${post.title}`
+    const handleSubscribeClick = () => {
+        router.push("/#newsletter")
+    }
 
     const handleShare = (platform: "twitter" | "facebook" | "linkedin" | "clipboard") => {
         if (platform === "clipboard") {
@@ -60,23 +65,7 @@ export function BlogPostClient({ post, slug }: { post: Post; slug: string }) {
     return (
         <>
             {/* Header with Subscribe button – now safe in Client Component */}
-            <header className="container mx-auto py-6 px-4">
-                <div className="flex items-center justify-between">
-                    <Link href="/" className="text-xl md:text-2xl font-bold tracking-tight">
-                        Neural<span className="text-purple-500">Pulse</span>
-                    </Link>
-
-                    <Button
-                        variant="outline"
-                        className="border-purple-500 text-purple-500 hover:bg-purple-950 hover:text-white"
-                        onClick={() => {
-                            document.getElementById("newsletter")?.scrollIntoView({ behavior: "smooth" })
-                        }}
-                    >
-                        Subscribe
-                    </Button>
-                </div>
-            </header>
+            <Header onSubscribeClick={handleSubscribeClick } />
 
             <main className="container mx-auto px-4 py-12">
                 <article className="max-w-3xl mx-auto">
@@ -193,6 +182,6 @@ export function BlogPostClient({ post, slug }: { post: Post; slug: string }) {
                     )}
                 </article>
             </main>
-        </>
+            </>
     )
 }

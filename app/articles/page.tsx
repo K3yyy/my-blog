@@ -5,10 +5,12 @@ import { Button } from "@/components/ui/button"
 import { useRouter } from "next/navigation"
 import {Footer} from "@/components/Footer";
 import {ArticleCard} from "@/components/ArticleCard";
+import {Header} from "@/components/Header";
+import {useRef} from "react";
 
 // Static article data for GitHub Pages
 const articles = [
-    
+
     {
         title: "Talking to Strangers: Fear, Awkwardness, and Unexpected Wisdom",
         description:
@@ -66,7 +68,7 @@ const articles = [
 ]
 
 export default function ArticlesPage() {
-    const router = useRouter()
+    const router = useRouter();
 
     const handleSubscribeClick = () => {
         router.push("/#newsletter")
@@ -74,34 +76,7 @@ export default function ArticlesPage() {
 
     return (
         <div className="min-h-screen bg-black text-white">
-            <header className="container mx-auto py-6">
-                <div className="flex items-center justify-between">
-                    <Link href="/" className="text-xl font-bold tracking-tighter">
-                        Neural<span className="text-purple-500">Pulse</span>
-                    </Link>
-                    <nav className="hidden md:flex items-center space-x-6 text-sm">
-                        <Link href="/" className="text-gray-400 hover:text-white transition-colors">
-                            Home
-                        </Link>
-                        <Link href="/articles/" className="text-white transition-colors border-b-2 border-purple-500 pb-1">
-                            Articles
-                        </Link>
-                        <Link href="/topics/" className="text-gray-400 hover:text-white transition-colors">
-                            Topics
-                        </Link>
-                        <Link href="/about/" className="text-gray-400 hover:text-white transition-colors">
-                            About
-                        </Link>
-                    </nav>
-                    <Button
-                        variant="outline"
-                        className="border-purple-500 text-purple-500 hover:bg-purple-950 hover:text-white"
-                        onClick={handleSubscribeClick}
-                    >
-                        Subscribe
-                    </Button>
-                </div>
-            </header>
+           <Header onSubscribeClick={handleSubscribeClick} />
 
             <main className="container mx-auto px-4 py-12">
                 <section className="mb-12">
