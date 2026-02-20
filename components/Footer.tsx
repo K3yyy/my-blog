@@ -3,42 +3,94 @@ import Link from "next/link";
 import { Github, Linkedin, Mail, Rss, Twitter } from "lucide-react";
 
 export function Footer() {
+    const currentYear = new Date().getFullYear();
+
     return (
-        <footer className="border-t border-gray-800 py-12">
-            <div className="container mx-auto px-4">
-                <div className="grid md:grid-cols-4 gap-8">
-                    <div className="space-y-4">
-                        <Link href="/" className="text-xl font-bold tracking-tighter">
-                            Weird<span className="text-purple-500">Wander</span>
+        <footer className="border-t border-gray-800 bg-gray-950 text-gray-300">
+            <div className="container mx-auto px-5 sm:px-6 lg:px-8 py-12 md:py-16">
+                <div className="grid grid-cols-2 gap-10 md:grid-cols-3 lg:gap-12  xl:gap-16">
+                    {/* Brand + Description + Socials */}
+                    <div className="col-span-2 md:col-span-1 flex flex-col items-center md:items-start gap-5">
+                        <Link
+                            href="/"
+                            className="text-2xl font-bold tracking-tight text-white"
+                        >
+                            Keyy<span className="text-blue-500">verse</span>
                         </Link>
-                        <p className="text-gray-400 text-sm">
-                            Discovering the strange, enjoying the weird side of life, and learning
-                            something unexpected every day.
+
+                        <p className="text-gray-400 text-sm leading-relaxed max-w-md text-center md:text-left">
+                            Discovering the strange, enjoying the weird side of life, and
+                            learning something unexpected every day.
                         </p>
-                        <div className="flex space-x-4">
-                            <Link href="#" className="text-gray-400 hover:text-white">
-                                <Twitter className="h-5 w-5" />
-                            </Link>
-                            <Link href="#" className="text-gray-400 hover:text-white">
-                                <Github className="h-5 w-5" />
-                            </Link>
-                            <Link href="#" className="text-gray-400 hover:text-white">
-                                <Linkedin className="h-5 w-5" />
-                            </Link>
-                            <Link href="#" className="text-gray-400 hover:text-white">
-                                <Rss className="h-5 w-5" />
-                            </Link>
+
+                        <div className="flex items-center gap-5 mt-2">
+                            <SocialLink href="#" icon={Twitter} />
+                            <SocialLink href="#" icon={Github} />
+                            <SocialLink href="#" icon={Linkedin} />
+                            <SocialLink href="#" icon={Rss} />
                         </div>
                     </div>
 
-                    {/* Topics, Resources, Contact sections – same as before */}
-                    {/* ... */}
+                    {/* Topics */}
+                    <div>
+                        <h3 className="text-white font-semibold mb-4 tracking-wide">Topics</h3>
+                        <div className="flex flex-col gap-2.5 text-sm text-gray-400">
+                            <FooterLink href="#">Tech</FooterLink>
+                            <FooterLink href="#">Travel</FooterLink>
+                            <FooterLink href="#">Lifestyle</FooterLink>
+                        </div>
+                    </div>
+
+                    {/* Resources */}
+                    <div>
+                        <h3 className="text-white font-semibold mb-4 tracking-wide">Resources</h3>
+                        <div className="flex flex-col gap-2.5 text-sm text-gray-400">
+                            <FooterLink href="#">Blog</FooterLink>
+                            <FooterLink href="#">Guides</FooterLink>
+                            <FooterLink href="#">Newsletter</FooterLink>
+                        </div>
+                    </div>
+
+                    {/* Contact */}
+
                 </div>
 
-                <div className="border-t border-gray-800 mt-12 pt-6 text-sm text-gray-400">
-                    <p>© {new Date().getFullYear()} WeirdWander. All rights reserved.</p>
+                {/* Bottom bar */}
+                <div className="mt-12 pt-8 border-t border-gray-800 text-center text-sm text-gray-500">
+                    <p>© {currentYear} KeyyVerse. All rights reserved.</p>
                 </div>
             </div>
         </footer>
+    );
+}
+
+/* Reusable small components */
+
+function SocialLink({
+                        href,
+                        icon: Icon,
+                    }: {
+    href: string;
+    icon: typeof Twitter;
+}) {
+    return (
+        <Link
+            href={href}
+            className="text-gray-400 hover:text-white transition-colors"
+            aria-label="Social link"
+        >
+            <Icon className="h-5 w-5" />
+        </Link>
+    );
+}
+
+function FooterLink({ href, children }: { href: string; children: React.ReactNode }) {
+    return (
+        <Link
+            href={href}
+            className="hover:text-white transition-colors duration-150"
+        >
+            {children}
+        </Link>
     );
 }

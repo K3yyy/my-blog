@@ -49,7 +49,7 @@ export function Header({ onSubscribeClick }: HeaderProps) {
                     href="/"
                     className="text-2xl md:text-3xl font-bold tracking-tight z-50"
                 >
-                    Keyy<span className="text-purple-500">Verse</span>
+                    Keyy<span className="text-blue-500">Verse</span>
                 </Link>
 
                 {/* Desktop Navigation */}
@@ -71,7 +71,7 @@ export function Header({ onSubscribeClick }: HeaderProps) {
                 {/* Desktop Subscribe Button */}
                 <Button
                     variant="outline"
-                    className="hidden md:flex border-purple-500/70 text-purple-400 hover:bg-purple-950/40 hover:text-purple-300 hover:border-purple-400 transition-all duration-300"
+                    className="hidden md:flex border-blue-500/70 text-blue-400 hover:bg-purple-950/40 hover:text-blue-300 hover:border-blue-400 transition-all duration-300"
                     onClick={onSubscribeClick}
                 >
                     Subscribe
@@ -122,37 +122,37 @@ export function Header({ onSubscribeClick }: HeaderProps) {
                     <nav className="flex flex-col space-y-8 text-xl font-medium">
                         <Link
                             href="/"
-                            className="flex items-center gap-4 text-gray-200 hover:text-purple-400 transition-colors group"
+                            className="flex items-center gap-4 text-gray-200 hover:text-blue-400 transition-colors group"
                             onClick={closeMenu}
                         >
-                            <Home className="h-6 w-6 text-gray-400 group-hover:text-purple-400 transition-colors" />
+                            <Home className="h-6 w-6 text-gray-400 group-hover:text-blue-400 transition-colors" />
                             Home
                         </Link>
 
                         <Link
                             href="/articles/"
-                            className="flex items-center gap-4 text-gray-200 hover:text-purple-400 transition-colors group"
+                            className="flex items-center gap-4 text-gray-200 hover:text-blue-400 transition-colors group"
                             onClick={closeMenu}
                         >
-                            <Newspaper className="h-6 w-6 text-gray-400 group-hover:text-purple-400 transition-colors" />
+                            <Newspaper className="h-6 w-6 text-gray-400 group-hover:text-blue-400 transition-colors" />
                             Articles
                         </Link>
 
                         <Link
                             href="/topics/"
-                            className="flex items-center gap-4 text-gray-200 hover:text-purple-400 transition-colors group"
+                            className="flex items-center gap-4 text-gray-200 hover:text-blue-400 transition-colors group"
                             onClick={closeMenu}
                         >
-                            <Tags className="h-6 w-6 text-gray-400 group-hover:text-purple-400 transition-colors" />
+                            <Tags className="h-6 w-6 text-gray-400 group-hover:text-blue-400 transition-colors" />
                             Topics
                         </Link>
 
                         <Link
                             href="/about/"
-                            className="flex items-center gap-4 text-gray-200 hover:text-purple-400 transition-colors group"
+                            className="flex items-center gap-4 text-gray-200 hover:text-blue-400 transition-colors group"
                             onClick={closeMenu}
                         >
-                            <Info className="h-6 w-6 text-gray-400 group-hover:text-purple-400 transition-colors" />
+                            <Info className="h-6 w-6 text-gray-400 group-hover:text-blue-400 transition-colors" />
                             About
                         </Link>
                     </nav>
@@ -160,7 +160,7 @@ export function Header({ onSubscribeClick }: HeaderProps) {
                     {/* Subscribe button at bottom */}
                     <div className="mt-auto pb-8">
                         <Button
-                            className="w-full bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-500 hover:to-purple-600 text-white py-7 text-lg font-medium shadow-lg shadow-purple-900/30 transition-all duration-300"
+                            className="w-full bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-500 hover:to-blue-600 text-white py-7 text-lg font-medium shadow-lg shadow-purple-900/30 transition-all duration-300"
                             onClick={() => {
                                 closeMenu();
                                 onSubscribeClick();

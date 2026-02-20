@@ -25,14 +25,14 @@ const NewsletterSection = forwardRef<HTMLElement, NewsletterFormProps>(
                         <Input
                             type="email"
                             placeholder="Enter your email"
-                            className="bg-black border-gray-800 focus-visible:ring-purple-500"
+                            className="bg-black border-gray-800 focus-visible:ring-blue-500"
                             value={email}
                             onChange={(e) => setEmail(e.target.value)}
                             required
                         />
                         <Button
                             type="submit"
-                            className="bg-purple-600 hover:bg-purple-700 whitespace-nowrap"
+                            className="bg-blue-600 hover:bg-blue-700 whitespace-nowrap"
                             disabled={isSubmitting}
                         >
                             {isSubmitting ? "Subscribing..." : "Subscribe"}

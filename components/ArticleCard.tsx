@@ -15,7 +15,7 @@ export function ArticleCard({
     return (
         <Link href={`/blog/${slug}/`} className="group">
             <div className="space-y-3">
-                <div className="relative h-48 rounded-lg overflow-hidden border border-gray-800 group-hover:border-purple-500/50 transition-colors">
+                <div className="relative h-48 rounded-lg overflow-hidden border border-gray-800 group-hover:border-blue-500/50 transition-colors">
                     <Image
                         src={image || "/placeholder.svg"}
                         alt={`${title} thumbnail`}
@@ -24,11 +24,11 @@ export function ArticleCard({
                     />
                 </div>
                 <div>
-                    <div className="flex items-center gap-2 text-xs text-purple-500 mb-2">
+                    <div className="flex items-center gap-2 text-xs text-purple-blue mb-2">
                         <BrainCircuit className="h-4 w-4" />
                         <span>{category}</span>
                     </div>
-                    <h3 className="font-medium group-hover:text-purple-400 transition-colors">
+                    <h3 className="font-medium group-hover:text-blue-500 transition-colors">
                         {title}
                     </h3>
                     <p className="text-gray-400 text-sm mt-2 line-clamp-2">

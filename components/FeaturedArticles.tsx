@@ -10,7 +10,7 @@ export function FeaturedArticles() {
                 <h2 className="text-2xl font-bold">Featured Articles</h2>
                 <Link
                     href="/articles/"
-                    className="text-purple-500 hover:text-purple-400 text-sm flex items-center gap-2"
+                    className="text-blue-500 hover:text-blue-400 text-sm flex items-center gap-2"
                 >
                     View all <Eye className="h-4 w-4" />
                 </Link>

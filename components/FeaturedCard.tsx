@@ -32,7 +32,7 @@ export function FeaturedCard({
                 />
             </div>
             <CardHeader>
-                <div className="flex items-center gap-2 text-sm text-purple-500 mb-2">
+                <div className="flex items-center gap-2 text-sm text-blue-500 mb-2">
                     {icon}
                     <span>{category}</span>
                 </div>
@@ -50,7 +50,7 @@ export function FeaturedCard({
                 </div>
                 <Link
                     href={`/blog/${slug}/`}
-                    className="text-purple-500 hover:text-purple-400"
+                    className="text-blue-500 hover:text-blue-400"
                 >
                     Read more →
                 </Link>
