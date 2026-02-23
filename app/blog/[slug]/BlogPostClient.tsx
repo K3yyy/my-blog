@@ -109,7 +109,7 @@ export function BlogPostClient({ post, slug }: { post: Post; slug: string }) {
                     </div>
 
                     <div className="flex flex-wrap justify-between items-center gap-4 mb-12">
-                        <div className="flex flex-wrap gap-2">
+                        <div className="flex text-blue-500 flex-wrap gap-2">
                             <Button
                                 variant="outline"
                                 size="sm"

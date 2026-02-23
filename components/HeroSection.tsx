@@ -26,7 +26,7 @@ export function HeroSection({ onNewsletterClick }: HeroSectionProps) {
                         </Button>
                         <Button
                             variant="outline"
-                            className="border-gray-700 hover:bg-gray-900"
+                            className="border-gray-700 bg-blue-800 hover:bg-blue-700 hover:text-white "
                             onClick={onNewsletterClick}
                         >
                             Join Newsletter

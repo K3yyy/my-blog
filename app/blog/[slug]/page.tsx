@@ -23,7 +23,7 @@ const blogPosts: Record<
         }>
     }
 > = {
-    "getting-lost-on-purpose": {
+    "talking-to-strangers": {
         title: "Getting Lost on Purpose: What Wandering Taught Me",
         date: "May 15, 2023",
         author: "Keyy",
