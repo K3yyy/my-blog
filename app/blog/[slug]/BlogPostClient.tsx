@@ -1,13 +1,12 @@
-// app/blog/[slug]/BlogPostClient.tsx
 "use client"
 
 import Link from "next/link"
 import Image from "next/image"
-import { ArrowLeft, BrainCircuit, Clock, Share2, Twitter, Facebook, Linkedin } from "lucide-react"
+import { ArrowLeft, BrainCircuit, Clock, Share2, Facebook, Instagram } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { useToast } from "@/components/ui/use-toast"
-import {Header} from "@/components/Header";
-import {router} from "next/client";
+import { Header } from "@/components/Header"
+import { useRouter } from "next/navigation"   // ← Correct import – this is the fix!
 
 type Post = {
     title: string
@@ -17,24 +16,19 @@ type Post = {
     readTime: string
     image: string
     content: string
-    relatedPosts: Array<{
-        title: string
-        category: string
-        image: string
-        slug: string
-    }>
 }
 
 export function BlogPostClient({ post, slug }: { post: Post; slug: string }) {
     const { toast } = useToast()
+    const router = useRouter()   // ← Now this gives you a real router object
 
     const pageUrl = typeof window !== "undefined" ? window.location.href : ""
-    const shareText = `Check out this article: ${post.title}`
+
     const handleSubscribeClick = () => {
-        router.push("/#newsletter")
+        router.push("/#newsletter")   // ← This will now work
     }
 
-    const handleShare = (platform: "twitter" | "facebook" | "linkedin" | "clipboard") => {
+    const handleShare = (platform: "instagram" | "facebook" | "clipboard") => {
         if (platform === "clipboard") {
             navigator.clipboard.writeText(pageUrl)
             toast({
@@ -46,14 +40,13 @@ export function BlogPostClient({ post, slug }: { post: Post; slug: string }) {
 
         let shareUrl = ""
         switch (platform) {
-            case "twitter":
-                shareUrl = `https://twitter.com/intent/tweet?url=${encodeURIComponent(pageUrl)}&text=${encodeURIComponent(shareText)}`
-                break
             case "facebook":
                 shareUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(pageUrl)}`
                 break
-            case "linkedin":
-                shareUrl = `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(pageUrl)}`
+            case "instagram":
+                // Instagram doesn't support direct web sharing of links well – this opens profile
+                shareUrl = `https://www.instagram.com/k3y_yy/`
+                // If you want better Instagram sharing, consider a "Copy link & open app" flow
                 break
         }
 
@@ -64,8 +57,7 @@ export function BlogPostClient({ post, slug }: { post: Post; slug: string }) {
 
     return (
         <>
-            {/* Header with Subscribe button – now safe in Client Component */}
-            <Header onSubscribeClick={handleSubscribeClick } />
+            <Header onSubscribeClick={handleSubscribeClick} />
 
             <main className="container mx-auto px-4 py-12">
                 <article className="max-w-3xl mx-auto">
@@ -114,10 +106,10 @@ export function BlogPostClient({ post, slug }: { post: Post; slug: string }) {
                                 variant="outline"
                                 size="sm"
                                 className="h-9 border-gray-700 hover:bg-gray-900 hover:text-purple-300"
-                                onClick={() => handleShare("twitter")}
+                                onClick={() => handleShare("instagram")}
                             >
-                                <Twitter className="h-4 w-4 mr-2" />
-                                Twitter
+                                <Instagram className="h-4 w-4 mr-2" />
+                                Instagram
                             </Button>
                             <Button
                                 variant="outline"
@@ -128,21 +120,12 @@ export function BlogPostClient({ post, slug }: { post: Post; slug: string }) {
                                 <Facebook className="h-4 w-4 mr-2" />
                                 Facebook
                             </Button>
-                            <Button
-                                variant="outline"
-                                size="sm"
-                                className="h-9 border-gray-700 hover:bg-gray-900 hover:text-purple-300"
-                                onClick={() => handleShare("linkedin")}
-                            >
-                                <Linkedin className="h-4 w-4 mr-2" />
-                                LinkedIn
-                            </Button>
                         </div>
 
                         <Button
                             variant="outline"
                             size="sm"
-                            className="h-9 border-gray-700 hover:bg-gray-900 hover:text-purple-300"
+                            className="h-9 border-gray-700 text-purple-500 hover:bg-gray-900 hover:text-purple-300"
                             onClick={() => handleShare("clipboard")}
                         >
                             <Share2 className="h-4 w-4 mr-2" />
@@ -154,34 +137,8 @@ export function BlogPostClient({ post, slug }: { post: Post; slug: string }) {
                         className="prose prose-invert prose-purple max-w-none prose-headings:text-white prose-a:text-purple-400 hover:prose-a:text-purple-300 prose-blockquote:border-purple-500/50"
                         dangerouslySetInnerHTML={{ __html: post.content }}
                     />
-
-                    {post.relatedPosts.length > 0 && (
-                        <section className="border-t border-gray-800 mt-16 pt-10">
-                            <h2 className="text-2xl font-bold mb-8">Related Reading</h2>
-                            <div className="grid md:grid-cols-2 gap-6">
-                                {post.relatedPosts.map((rel) => (
-                                    <Link key={rel.slug} href={`/blog/${rel.slug}`} className="group block h-full">
-                                        <div className="flex flex-col h-full space-y-4">
-                                            <div className="relative aspect-video rounded-lg overflow-hidden border border-gray-800 group-hover:border-purple-500/60 transition-colors flex-shrink-0">
-                                                <Image src={rel.image} alt={rel.title} fill className="object-cover" />
-                                            </div>
-                                            <div className="flex-grow">
-                                                <div className="flex items-center gap-2 text-xs text-purple-400 mb-2">
-                                                    <BrainCircuit className="h-4 w-4" />
-                                                    <span>{rel.category}</span>
-                                                </div>
-                                                <h3 className="font-semibold group-hover:text-purple-400 transition-colors line-clamp-2">
-                                                    {rel.title}
-                                                </h3>
-                                            </div>
-                                        </div>
-                                    </Link>
-                                ))}
-                            </div>
-                        </section>
-                    )}
                 </article>
             </main>
-            </>
+        </>
     )
 }

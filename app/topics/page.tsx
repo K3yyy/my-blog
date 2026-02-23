@@ -7,7 +7,9 @@ import { Header } from "@/components/Header"
 import { TopicCard } from "@/components/TopicCard"
 import { supabase } from "@/lib/supabase"
 import {Brain, BrainCircuit, FlaskConical, HeartHandshake, Lightbulb, Sparkles} from "lucide-react";
-import {articles} from "@/lib/data"; // still using this for counts (move later)
+import {articles} from "@/lib/data";
+import {TopicsLoading} from "@/components/LoadingSkeleton";
+
 
 // Map icon name from DB → real component
 const iconMap: Record<string, JSX.Element> = {
@@ -66,11 +68,7 @@ export default function TopicsPage() {
     const handleSubscribeClick = () => router.push("/#newsletter")
 
     if (loading) {
-        return (
-            <div className="min-h-screen bg-black text-white flex items-center justify-center">
-                <p className="text-xl animate-pulse">Loading topics...</p>
-            </div>
-        )
+        return <TopicsLoading />
     }
 
     if (error) {

@@ -36,12 +36,12 @@ export default function AboutPage() {
 
 
 
-                        <h2 className="text-blue-500 font-bold">My Mission</h2>
+                        <h2 className="text-blue-500 font-bold">Mission</h2>
                         <p>
                             We chase down the strangest corners of the world—bizarre historical coincidences, mind-bending animal quirks, random life moments that feel scripted by a prankster universe—and share them in a way that's fun, lighthearted, and impossible to forget. The goal? Spark that tiny "wait, really?" moment that turns an ordinary Tuesday into something magical.
                         </p>
 
-                        <h2>What We Dive Into</h2>
+                        <h2 className="text-blue-500 font-bold">What We Dive Into</h2>
                         <p>Here's a taste of the weirdness we love exploring:</p>
                         <ul>
                             <li>
@@ -66,10 +66,10 @@ export default function AboutPage() {
                         </p>
 
 
-                        <h2>Get in Touch</h2>
+                        <h2 className="text-blue-500 font-bold">Get in Touch</h2>
                         <p>
                             Got a weird fact, a personal odd life moment, or just want to say hi? Drop me a line at{" "}
-                            <a href="yunmenghuy33@gmail.com" className="text-purple-400 hover:text-purple-300">
+                            <a  href="mailto:yunmenghuy33@gmail.com?subject=Hello%20Keyy&body=Hi%20there!" className="text-purple-400 hover:text-purple-300">
                                 yunmenghuy33@gmail.com
                             </a>
                             . I love hearing the strange stuff you've discovered!

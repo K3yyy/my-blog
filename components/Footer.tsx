@@ -1,6 +1,6 @@
 // components/Footer.tsx
 import Link from "next/link";
-import { Github, Linkedin, Mail, Rss, Twitter } from "lucide-react";
+import {Facebook, Github, Instagram, Linkedin, Mail, Rss, Twitter} from "lucide-react";
 
 export function Footer() {
     const currentYear = new Date().getFullYear();
@@ -24,10 +24,11 @@ export function Footer() {
                         </p>
 
                         <div className="flex items-center gap-5 mt-2">
-                            <SocialLink href="#" icon={Twitter} />
-                            <SocialLink href="#" icon={Github} />
-                            <SocialLink href="#" icon={Linkedin} />
-                            <SocialLink href="#" icon={Rss} />
+                            <SocialLink href="https://www.facebook.com/K3y_yyy" icon={Facebook}  />
+                            <SocialLink href="https://www.instagram.com/k3y_yy/" icon={Instagram} />
+                            <SocialLink href="https://github.com/K3yyy" icon={Github} />
+                            <SocialLink href="https://www.linkedin.com/in/yun-menghuy-0270a0303" icon={Linkedin} />
+                            <SocialLink href="https://x.com/k3y_yy?s=21" icon={Twitter} />
                         </div>
                     </div>
 
@@ -76,6 +77,7 @@ function SocialLink({
     return (
         <Link
             href={href}
+            target="_blank"
             className="text-gray-400 hover:text-white transition-colors"
             aria-label="Social link"
         >
@@ -88,6 +90,7 @@ function FooterLink({ href, children }: { href: string; children: React.ReactNod
     return (
         <Link
             href={href}
+            target="_blank"
             className="hover:text-white transition-colors duration-150"
         >
             {children}
