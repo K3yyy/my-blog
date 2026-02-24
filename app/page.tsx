@@ -52,6 +52,9 @@ export default function Home() {
             <main className="container mx-auto px-4 py-5">
                 <HeroSection onNewsletterClick={scrollToNewsletter} />
 
+                <h4 className="text-sm font-medium text-gray-400 mb-3 tracking-wide uppercase">
+                    Recently Posted
+                </h4>
                <div className="flex flex-col gap-y-16">
                    <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
                        {[...articles]

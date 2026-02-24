@@ -16,7 +16,7 @@ export default function AboutPage() {
 
             <main className="container mx-auto px-4 py-12">
                 <div className="max-w-3xl mx-auto">
-                    <h1 className="text-4xl font-bold mb-8">About Keyyverse</h1>
+                    <h1 className="text-4xl font-bold mb-8">About Blog</h1>
 
                     <div className="prose prose-invert prose-purple max-w-none">
                         <p className="text-xl text-gray-300 mb-8">

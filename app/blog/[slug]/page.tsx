@@ -1,59 +1,50 @@
 // app/blog/[slug]/page.tsx
-// This is a SERVER COMPONENT — no "use client" here
+// SERVER COMPONENT
 
-import { BlogPostClient } from "./BlogPostClient"
-import { Footer } from "@/components/Footer"
+import { notFound } from 'next/navigation'
+import { BlogPostClient } from './BlogPostClient'
+import { Footer } from '@/components/Footer'
+import { supabase } from '@/lib/supabase' // adjust path
 
-// Static blog posts data (ideal for static export / GitHub Pages)
-const blogPosts: Record<
-    string,
-    {
-        title: string
-        date: string
-        author: string
-        category: string
-        readTime: string
-        image: string
-        content: string
-        relatedPosts: Array<{
-            title: string
-            category: string
-            image: string
-            slug: string
-        }>
-    }
-> = {
-    "talking-to-strangers": {
-        title: "Getting Lost on Purpose: What Wandering Taught Me",
-        date: "May 15, 2023",
-        author: "Keyy",
-        category: "Life Experiments",
-        readTime: "6 min read",
-        image:
-            "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?q=80&w=2000&h=1000&auto=format&fit=crop",
-        content: `
-      <p>I once decided to walk without a destination. No map. No plan. Just movement.</p>
-      <h2>Why We Fear Getting Lost</h2>
-      <p>We are trained to follow directions — in school, in careers, in life. Getting lost feels like failure.</p>
-      <h2>But Something Strange Happened</h2>
-      <p>When I stopped trying to control the path, I noticed things I normally ignore: small streets, quiet conversations, sunlight hitting walls differently.</p>
-      <h2>The Unexpected Lesson</h2>
-      <p>Sometimes clarity doesn’t come from planning. It comes from wandering.</p>
-      <p>Maybe getting lost isn’t about losing direction — maybe it’s about discovering one.</p>
-    `,
-        relatedPosts: [
-            {
-                title: "Midnight Thoughts That Changed My Perspective",
-                category: "Unexpected Lessons",
-                image:
-                    "https://images.unsplash.com/photo-1500534314209-a25ddb2bd429?q=80&w=600&h=400&auto=format&fit=crop",
-                slug: "midnight-thoughts",
-            },
-        ],
-    },
-    // Add your other posts here (midnight-thoughts, beauty-of-doing-nothing, chasing-curiosity)
-    // Example:
-    // "midnight-thoughts": { ... same structure ... },
+// ────────────────────────────────────────────────
+// Types (keep same shape your client expects)
+// ────────────────────────────────────────────────
+
+type RawBlogPost = {
+    slug: string
+    title: string
+    date: string
+    author: string
+    category: string
+    read_time: string
+    hero_image: string
+    content: string
+}
+
+type ProcessedPost = {
+    title: string
+    date: string
+    author: string
+    category: string
+    readTime: string          // camelCase to match your client
+    image: string             // renamed back for client
+    sections: string[]
+    // relatedPosts: ...       // add later if needed
+}
+
+function splitIntoSections(html: string): string[] {
+    const parts = html.split(/(?=<h[23][^>]*>)/).filter(Boolean)
+    return parts.length > 0 ? parts.map(s => s.trim()) : [html.trim()]
+}
+
+export async function generateStaticParams() {
+    // Optional: pre-render known slugs (good for static export)
+    // For dynamic → you can skip or fetch all slugs
+    const { data: posts } = await supabase
+        .from('blog_posts')
+        .select('slug')
+
+    return (posts ?? []).map(p => ({ slug: p.slug }))
 }
 
 export default async function BlogPostPage({
@@ -62,31 +53,37 @@ export default async function BlogPostPage({
     params: Promise<{ slug: string }>
 }) {
     const { slug } = await params
-    const post = blogPosts[slug]
 
-    if (!post) {
-        return (
-            <div className="min-h-screen bg-black text-white flex items-center justify-center px-4">
-                <div className="text-center max-w-md">
-                    <h1 className="text-3xl font-bold mb-4">Post Not Found</h1>
-                    <p className="text-gray-400 mb-8">
-                        The blog post you're looking for doesn't exist or has been moved.
-                    </p>
-                    <a
-                        href="/"
-                        className="inline-block border border-purple-500 text-purple-500 px-6 py-3 rounded hover:bg-purple-950 hover:text-white transition-colors"
-                    >
-                        Return Home
-                    </a>
-                </div>
-            </div>
-        )
+    const { data: rawPost, error } = await supabase
+        .from('blog_posts')
+        .select('slug, title, date, author, category, read_time, hero_image, content')
+        .eq('slug', slug)
+        .single()
+
+    if (error || !rawPost) {
+        console.error('Supabase fetch error:', error)
+        notFound()
+    }
+
+    // Transform to match your BlogPostClient props
+    const post: ProcessedPost = {
+        title: rawPost.title,
+        date: rawPost.date,
+        author: rawPost.author,
+        category: rawPost.category,
+        readTime: rawPost.read_time,
+        image: rawPost.hero_image,
+        sections: splitIntoSections(rawPost.content),
     }
 
     return (
-        <div className="min-h-screen bg-black text-white">
-            <BlogPostClient post={post} slug={slug} />
-
+        <div className="min-h-screen bg-black text-white flex flex-col">
+            <main className="flex-1">
+                <BlogPostClient
+                    post={post}
+                    slug={slug}
+                />
+            </main>
             <Footer />
         </div>
     )
