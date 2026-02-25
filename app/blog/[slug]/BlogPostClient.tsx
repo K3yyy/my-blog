@@ -3,15 +3,7 @@
 import { useState } from "react"
 import Link from "next/link"
 import Image from "next/image"
-import {
-    ArrowLeft,
-    ArrowRight,
-    BrainCircuit,
-    Clock,
-    Share2,
-    Facebook,
-    Instagram
-} from "lucide-react"
+import { ArrowLeft, ArrowRight, BrainCircuit, Clock, Share2, Facebook, Instagram } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { useToast } from "@/components/ui/use-toast"
 import { Header } from "@/components/Header"
@@ -24,7 +16,7 @@ type Post = {
     category: string
     readTime: string
     image: string
-    sections: string[]          // Array of HTML strings — each is one "page" of the article
+    sections: string[] // Array of HTML strings — each is one "page" of the article
 }
 
 type BlogPostClientProps = {
@@ -43,7 +35,6 @@ export function BlogPostClient({
                                }: BlogPostClientProps) {
     const { toast } = useToast()
     const router = useRouter()
-
     const [currentPage, setCurrentPage] = useState(0)
 
     const totalPages = post.sections.length
@@ -99,7 +90,7 @@ export function BlogPostClient({
 
                         <div className="flex items-center gap-2.5 bg-gray-900/60 backdrop-blur-md border border-gray-800/70 px-4 py-1.5 rounded-full text-sm text-blue-300 shadow-lg">
                             <BrainCircuit className="h-4 w-4" />
-                            <span>{post.category}</span>
+                            <span>{post.category || "Uncategorized"}</span>
                         </div>
                     </div>
 
@@ -115,33 +106,45 @@ export function BlogPostClient({
                             <span>{post.readTime}</span>
                         </div>
                         <span className="text-gray-700">•</span>
-                        <time dateTime={post.date} className="text-gray-300">{post.date}</time>
+                        <time dateTime={post.date} className="text-gray-300">
+                            {post.date}
+                            {/* Uncomment for Khmer date:
+              {new Date(post.date).toLocaleDateString('km-KH', { year: 'numeric', month: 'long', day: 'numeric' })}
+              */}
+                        </time>
                         <span className="text-gray-700">•</span>
                         <span className="italic">By {post.author}</span>
                     </div>
-                    <div className=" lg:top-24 lg:float-right lg:ml-12 lg:w-14 lg:-mr-48 mb-10 lg:mb-0">
-                        <div className="flex lg:flex-col justify-center gap-16  backdrop-blur-xl border border-gray-800/60 p-2 rounded-2xl shadow-xl">
+
+                    {/* Share Sidebar (desktop) */}
+                    <div className="hidden lg:block lg:top-24 lg:float-right lg:ml-12 lg:w-14 lg:-mr-48 mb-10 lg:mb-0">
+                        <div className="flex lg:flex-col justify-center gap-16 backdrop-blur-xl border border-gray-800/60 p-2 rounded-2xl shadow-xl">
                             <Button
                                 variant="ghost"
                                 size="icon"
                                 className="text-purple-400 hover:text-purple-300 hover:bg-purple-950/40"
                                 onClick={() => handleShare("facebook")}
+                                aria-label="Share on Facebook"
                             >
                                 <Facebook className="h-5 w-5" />
                             </Button>
+
                             <Button
                                 variant="ghost"
                                 size="icon"
                                 className="text-purple-400 hover:text-purple-300 hover:bg-purple-950/40"
                                 onClick={() => handleShare("instagram")}
+                                aria-label="Visit Instagram profile"
                             >
                                 <Instagram className="h-5 w-5" />
                             </Button>
+
                             <Button
                                 variant="ghost"
                                 size="icon"
                                 className="text-purple-400 hover:text-purple-300 hover:bg-purple-950/40"
                                 onClick={() => handleShare("clipboard")}
+                                aria-label="Copy link to clipboard"
                             >
                                 <Share2 className="h-5 w-5" />
                             </Button>
@@ -153,7 +156,7 @@ export function BlogPostClient({
                         <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent z-10" />
                         <Image
                             src={post.image}
-                            alt={post.title}
+                            alt={`Cover image for ${post.title}`}
                             fill
                             className="object-cover transition-transform duration-700 group-hover:scale-105"
                             priority
@@ -161,51 +164,35 @@ export function BlogPostClient({
                         />
                     </div>
 
-                    {/* Share Sidebar (desktop) */}
-
-
                     {/* Current Page Content */}
                     <div
-                        className="prose prose-invert prose-lg prose-purple max-w-none mb-16
-              prose-headings:text-white prose-headings:font-extrabold
-              prose-a:text-purple-400 hover:prose-a:text-purple-300 prose-a:transition-colors
-              prose-blockquote:border-purple-500/60 prose-blockquote:bg-purple-950/30 prose-blockquote:p-6 prose-blockquote:rounded-xl
-              prose-code:bg-gray-900/70 prose-code:px-1.5 prose-code:py-0.5 prose-code:rounded
-              [&>p]:leading-relaxed [&>p]:text-gray-200"
-                        dangerouslySetInnerHTML={{ __html: post.sections[currentPage] || "<p>No content available for this page.</p>" }}
+                        className="prose prose-invert prose-lg prose-purple max-w-none mb-16 prose-headings:text-white prose-headings:font-extrabold prose-a:text-purple-400 hover:prose-a:text-purple-300 prose-a:transition-colors prose-blockquote:border-purple-500/60 prose-blockquote:bg-purple-950/30 prose-blockquote:p-6 prose-blockquote:rounded-xl prose-code:bg-gray-900/70 prose-code:px-1.5 prose-code:py-0.5 prose-code:rounded [&>p]:leading-relaxed [&>p]:text-gray-200"
+                        dangerouslySetInnerHTML={{
+                            __html: post.sections[currentPage] || "<p>No content available for this page.</p>",
+                        }}
                     />
 
                     {/* Pagination Controls */}
                     <div className="flex items-center justify-center gap-4 sm:gap-8 mt-10 mb-16 px-4">
-
                         {/* Prev */}
                         <button
                             type="button"
                             disabled={!hasPrev}
                             onClick={() => hasPrev && setCurrentPage(p => p - 1)}
-                            className={`
-      group flex items-center gap-1.5 px-4 py-2.5 min-w-[110px] sm:min-w-[120px]
-      text-sm sm:text-base font-medium
-      text-purple-200 bg-purple-950/30 border border-purple-600/40
-      hover:bg-purple-900/50 hover:border-purple-500/70 hover:text-white
-      disabled:opacity-40 disabled:pointer-events-none
-      rounded-lg shadow-sm transition-all duration-250 ease-out
-      active:scale-95 touch-manipulation
-    `}
+                            className={`group flex items-center gap-1.5 px-4 py-2.5 min-w-[110px] sm:min-w-[120px] text-sm sm:text-base font-medium text-purple-200 bg-purple-950/30 border border-purple-600/40 hover:bg-purple-900/50 hover:border-purple-500/70 hover:text-white disabled:opacity-40 disabled:pointer-events-none rounded-lg shadow-sm transition-all duration-250 ease-out active:scale-95 touch-manipulation`}
                         >
                             <ArrowLeft className="h-3 w-3 sm:h-4.5 sm:w-4.5 transition-transform group-hover:-translate-x-0.5" />
                             Prev
                         </button>
 
-                        {/* Center indicator — very compact */}
+                        {/* Center indicator */}
                         <div className="flex flex-col items-center min-w-[80px] sm:min-w-[100px]">
                             <div className="text-xs sm:text-sm font-semibold text-gray-300 tracking-wide">
                                 <span className="text-purple-300 font-bold">{currentPage + 1}</span>
                                 <span className="text-gray-600 mx-1">/</span>
                                 {totalPages}
                             </div>
-
-                            {/* Slim, glowing progress bar */}
+                            {/* Progress bar */}
                             <div className="w-20 sm:w-28 h-1.5 mt-1.5 bg-gray-800/70 rounded-full overflow-hidden">
                                 <div
                                     className="h-full bg-gradient-to-r from-purple-600 to-purple-400 transition-all duration-400 ease-out"
@@ -219,23 +206,14 @@ export function BlogPostClient({
                             type="button"
                             disabled={!hasNext}
                             onClick={() => hasNext && setCurrentPage(p => p + 1)}
-                            className={`
-      group flex items-center gap-1.5 px-4 py-2.5 min-w-[110px] sm:min-w-[120px]
-      text-sm sm:text-base font-medium
-      text-purple-200 bg-purple-950/30 border border-blue-600/40
-      hover:bg-purple-900/50 hover:border-purple-500/70 hover:text-white
-      disabled:opacity-40 disabled:pointer-events-none
-      rounded-lg shadow-sm transition-all duration-250 ease-out
-      active:scale-95 touch-manipulation
-    `}
+                            className={`group flex items-center gap-1.5 px-4 py-2.5 min-w-[110px] sm:min-w-[120px] text-sm sm:text-base font-medium text-purple-200 bg-purple-950/30 border border-blue-600/40 hover:bg-purple-900/50 hover:border-purple-500/70 hover:text-white disabled:opacity-40 disabled:pointer-events-none rounded-lg shadow-sm transition-all duration-250 ease-out active:scale-95 touch-manipulation`}
                         >
                             Next
                             <ArrowRight className="h-4 w-4 sm:h-4.5 sm:w-4.5 transition-transform group-hover:translate-x-0.5" />
                         </button>
-
                     </div>
 
-                    {/* Optional: Next / Previous Article Teasers */}
+                    {/* Next / Previous Article Teasers */}
                     <div className="grid md:grid-cols-2 gap-6 mt-16 border-t border-gray-800 pt-12">
                         {prevPost ? (
                             <Link

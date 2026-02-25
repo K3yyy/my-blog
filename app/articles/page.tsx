@@ -1,42 +1,54 @@
 // app/articles/page.tsx
-import { createSupabaseServer } from "@/lib/supabase/server"
-import { ArticleCard } from "@/components/ArticleCard"
-import HeaderClient from "@/components/HeaderClient"   // ← new client wrapper
-import { Footer } from "@/components/Footer"
-import { Suspense } from "react"
+import { createSupabaseServer } from "@/lib/supabase/server";
+import { ArticleCard } from "@/components/ArticleCard";
+import HeaderClient from "@/components/HeaderClient";
+import { Footer } from "@/components/Footer";
+import { Suspense } from "react";
 
-type Article = {
-    title: string
-    description: string
-    category: string
-    date: string       // or Date – adjust based on your DB
-    slug: string
-    image_url?: string
-}
+// Type for the Supabase response (matches your select + join)
+type ArticleListItem = {
+    slug: string;
+    title: string;
+    excerpt: string | null;          // short preview → map to description
+    date: string | null;
+    read_time: string | null;
+    hero_image_url: string | null;
+    image_urls: string[] | null;
+    topics: { title: string } | null; // title from topics (no alias needed)
+};
 
-async function getArticles() {
-    const supabase = await createSupabaseServer()
+async function getArticles(): Promise<ArticleListItem[]> {
+    const supabase = await createSupabaseServer();
 
     const { data, error } = await supabase
         .from("articles")
-        .select("title, description, category, date, slug, image_url")
-        .eq("published", true)
-        .order("date", { ascending: false })
+        .select(`
+      slug,
+      title,
+      excerpt,
+      date,
+      read_time,
+      hero_image_url,
+      image_urls,
+      topics!topic_id (title)
+    `)
+        .eq("status", "published")
+        .order("date", { ascending: false });
 
     if (error) {
-        console.error("Articles fetch error:", error)
-        return []
+        console.error("Articles fetch error:", error.message);
+        return [];
     }
 
-    return data || []
+    // Safe cast — Supabase join returns loose type
+    return (data as unknown as ArticleListItem[]) || [];
 }
 
 export default async function ArticlesPage() {
-    const articles = await getArticles()
+    const articles = await getArticles();
 
     return (
         <div className="min-h-screen bg-black text-white">
-            {/* Use client wrapper here */}
             <HeaderClient />
 
             <main className="container mx-auto px-4 py-12">
@@ -49,7 +61,10 @@ export default async function ArticlesPage() {
                         fallback={
                             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
                                 {Array.from({ length: 6 }).map((_, i) => (
-                                    <div key={i} className="h-80 bg-gray-900/50 rounded-xl animate-pulse" />
+                                    <div
+                                        key={i}
+                                        className="h-80 bg-gray-900/50 rounded-xl animate-pulse"
+                                    />
                                 ))}
                             </div>
                         }
@@ -64,11 +79,16 @@ export default async function ArticlesPage() {
                                     <ArticleCard
                                         key={article.slug}
                                         title={article.title}
-                                        description={article.description}
-                                        category={article.category}
-                                        date={article.date}
+                                        description={article.excerpt || "No preview available"}
+                                        category={article.topics?.title || "Uncategorized"}
+                                        date={article.date || "No date"}
                                         slug={article.slug}
-                                        image={article.image_url}
+                                        image={
+                                            article.hero_image_url ||
+                                            (article.image_urls?.[0] ?? "/images/placeholder.jpg")
+                                        }
+                                        // optional if your ArticleCard supports it:
+                                        // readTime={article.read_time || undefined}
                                     />
                                 ))}
                             </div>
@@ -79,5 +99,5 @@ export default async function ArticlesPage() {
 
             <Footer />
         </div>
-    )
+    );
 }
