@@ -1,20 +1,22 @@
-// app/articles/page.tsx
+
 import { createSupabaseServer } from "@/lib/supabase/server";
-import { ArticleCard } from "@/components/ArticleCard";
+
 import HeaderClient from "@/components/HeaderClient";
 import { Footer } from "@/components/Footer";
 import { Suspense } from "react";
+import {ClientFilter} from "@/components/ClientSiderFilter";
 
-// Type for the Supabase response (matches your select + join)
-type ArticleListItem = {
+
+// Type for article data
+export type ArticleListItem = {
     slug: string;
     title: string;
-    excerpt: string | null;          // short preview → map to description
+    excerpt: string | null;
     date: string | null;
     read_time: string | null;
     hero_image_url: string | null;
     image_urls: string[] | null;
-    topics: { title: string } | null; // title from topics (no alias needed)
+    topics: { title: string } | null;
 };
 
 async function getArticles(): Promise<ArticleListItem[]> {
@@ -23,13 +25,7 @@ async function getArticles(): Promise<ArticleListItem[]> {
     const { data, error } = await supabase
         .from("articles")
         .select(`
-      slug,
-      title,
-      excerpt,
-      date,
-      read_time,
-      hero_image_url,
-      image_urls,
+      slug, title, excerpt, date, read_time, hero_image_url, image_urls,
       topics!topic_id (title)
     `)
         .eq("status", "published")
@@ -40,10 +36,10 @@ async function getArticles(): Promise<ArticleListItem[]> {
         return [];
     }
 
-    // Safe cast — Supabase join returns loose type
     return (data as unknown as ArticleListItem[]) || [];
 }
 
+// Server component: fetch all articles once
 export default async function ArticlesPage() {
     const articles = await getArticles();
 
@@ -57,42 +53,17 @@ export default async function ArticlesPage() {
                         All Articles
                     </h1>
 
+                    {/* Client component handles URL-based filtering */}
                     <Suspense
                         fallback={
                             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
                                 {Array.from({ length: 6 }).map((_, i) => (
-                                    <div
-                                        key={i}
-                                        className="h-80 bg-gray-900/50 rounded-xl animate-pulse"
-                                    />
+                                    <div key={i} className="h-80 bg-gray-900/50 rounded-xl animate-pulse" />
                                 ))}
                             </div>
                         }
                     >
-                        {articles.length === 0 ? (
-                            <p className="text-center text-xl text-gray-400 py-16">
-                                No articles found yet.
-                            </p>
-                        ) : (
-                            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-                                {articles.map((article) => (
-                                    <ArticleCard
-                                        key={article.slug}
-                                        title={article.title}
-                                        description={article.excerpt || "No preview available"}
-                                        category={article.topics?.title || "Uncategorized"}
-                                        date={article.date || "No date"}
-                                        slug={article.slug}
-                                        image={
-                                            article.hero_image_url ||
-                                            (article.image_urls?.[0] ?? "/images/placeholder.jpg")
-                                        }
-                                        // optional if your ArticleCard supports it:
-                                        // readTime={article.read_time || undefined}
-                                    />
-                                ))}
-                            </div>
-                        )}
+                        <ClientFilter initialArticles={articles} />
                     </Suspense>
                 </section>
             </main>

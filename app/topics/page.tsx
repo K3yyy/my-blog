@@ -1,3 +1,4 @@
+// app/topics/page.tsx
 "use client"
 
 import {JSX, useEffect, useState} from "react"
@@ -5,21 +6,19 @@ import { useRouter } from "next/navigation"
 import { Footer } from "@/components/Footer"
 import { Header } from "@/components/Header"
 import { TopicCard } from "@/components/TopicCard"
-import { supabase } from "@/lib/supabase"
-import {Brain, BrainCircuit, FlaskConical, HeartHandshake, Lightbulb, Sparkles} from "lucide-react";
-import {articles} from "@/lib/data";
-import {TopicsLoading} from "@/components/LoadingSkeleton";
+import { TopicsLoading } from "@/components/LoadingSkeleton"
+import { Brain, BrainCircuit, FlaskConical, HeartHandshake, Lightbulb, Sparkles } from "lucide-react"
 
+import { getSupabaseClient } from "@/lib/supabase/client"
 
-// Map icon name from DB → real component
+// Map icon_name → Lucide icon
 const iconMap: Record<string, JSX.Element> = {
     BrainCircuit: <BrainCircuit className="h-6 w-6" />,
     Sparkles: <Sparkles className="h-6 w-6" />,
     Lightbulb: <Lightbulb className="h-6 w-6" />,
     FlaskConical: <FlaskConical className="h-6 w-6" />,
     Brain: <Brain className="h-6 w-6" />,
-    HeartHandshake:<HeartHandshake className="h-6 w-6" />,
-    // keep fallback
+    HeartHandshake: <HeartHandshake className="h-6 w-6" />,
     default: <Brain className="h-6 w-6" />,
 }
 
@@ -32,26 +31,27 @@ export default function TopicsPage() {
     useEffect(() => {
         async function loadTopics() {
             try {
+                const supabase = getSupabaseClient()
+
                 const { data, error } = await supabase
                     .from("topics")
-                    .select("slug, title, description, icon_name")
+                    .select(`
+            slug,
+            title,
+            description,
+            icon_name,
+            articles!topic_id (count)
+          `)
                     .order("title")
 
                 if (error) throw error
-                if (!data) throw new Error("No topics found")
+                if (!data || data.length === 0) throw new Error("No topics found")
 
-                // Add icon component + real article count
-                const topicsWithData = data.map(topic => {
-                    const count = articles.filter(
-                        article => article.category.toLowerCase().replace(/\s+/g, "-") === topic.slug
-                    ).length
-
-                    return {
-                        ...topic,
-                        icon: iconMap[topic.icon_name] || iconMap.default,
-                        count,
-                    }
-                })
+                const topicsWithData = data.map((topic: any) => ({
+                    ...topic,
+                    icon: iconMap[topic.icon_name] || iconMap.default,
+                    count: topic.articles?.[0]?.count ?? 0,
+                }))
 
                 setTopics(topicsWithData)
             } catch (err: any) {
@@ -65,7 +65,9 @@ export default function TopicsPage() {
         loadTopics()
     }, [])
 
-    const handleSubscribeClick = () => router.push("/#newsletter")
+    const handleSubscribeClick = () => {
+        router.push("/#newsletter")
+    }
 
     if (loading) {
         return <TopicsLoading />
@@ -93,7 +95,7 @@ export default function TopicsPage() {
             <Header onSubscribeClick={handleSubscribeClick} />
 
             <main className="container mx-auto px-4 py-12">
-                <h1 className="text-4xl md:text-4xl font-bold mb-8 text-start">
+                <h1 className="text-4xl md:text-5xl font-bold mb-8 text-start">
                     All topics
                 </h1>
 

@@ -10,9 +10,16 @@ interface TopicCardProps {
 }
 
 export function TopicCard({ title, description, icon, count, slug }: TopicCardProps) {
+    // Normalize slug for URL: lowercase, spaces → hyphen, remove special chars
+    const normalizedTopic = slug
+        .toLowerCase()
+        .trim()
+        .replace(/\s+/g, "-")           // spaces → hyphen
+        .replace(/[^a-z0-9-]/g, "");    // keep only letters, numbers, hyphen
+
     return (
         <Link
-            href={`/topics/${slug}`}   // ← Correct path: goes to the topic's filtered article page
+            href={`/articles?topic=${encodeURIComponent(normalizedTopic)}`}
             className="group block h-full"
         >
             <Card className="bg-gray-900 border-gray-800 hover:border-purple-500/50 transition-colors h-full flex flex-col">

@@ -9,6 +9,13 @@ const nextConfig = {
                 port: '',
                 pathname: '/storage/v1/object/public/**',       // allows all public files
             },
+            {
+                protocol: 'https',
+                hostname: 'images.unsplash.com',
+                port: '',
+                pathname: '/**',  // allows any path under the domain
+            },
+
         ],
 
         // Allow quality=82 (optional but fixes the quality warning)

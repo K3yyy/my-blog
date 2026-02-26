@@ -21,3 +21,4 @@ export function getSupabaseClient() {
 export function useSupabaseClient() {
     return useMemo(() => getSupabaseClient(), [])
 }
+
