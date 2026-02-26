@@ -15,8 +15,9 @@ type Post = {
     author: string
     category: string
     readTime: string
+    image_urls: string[]
     image: string
-    sections: string[] // Array of HTML strings — each is one "page" of the article
+    sections: string[]
 }
 
 type BlogPostClientProps = {
@@ -29,7 +30,6 @@ type BlogPostClientProps = {
 
 export function BlogPostClient({
                                    post,
-                                   slug,
                                    prevPost = null,
                                    nextPost = null,
                                }: BlogPostClientProps) {
@@ -152,15 +152,17 @@ export function BlogPostClient({
                     </div>
 
                     {/* Hero Image */}
+                    {/* Hero Image – use first image from array or fallback */}
                     <div className="relative aspect-[16/9] md:aspect-[21/9] rounded-2xl overflow-hidden mb-14 shadow-2xl shadow-purple-900/20 border border-gray-800/60 group">
                         <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent z-10" />
                         <Image
-                            src={post.image}
+                            src={post.image_urls?.[1]|| '/images/placeholder-article.jpg'}
                             alt={`Cover image for ${post.title}`}
                             fill
                             className="object-cover transition-transform duration-700 group-hover:scale-105"
                             priority
                             sizes="(max-width: 768px) 100vw, (max-width: 1200px) 85vw, 1100px"
+                            quality={82}
                         />
                     </div>
 

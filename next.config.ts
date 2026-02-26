@@ -15,6 +15,14 @@ const nextConfig = {
                 port: '',
                 pathname: '/**',  // allows any path under the domain
             },
+            {
+                protocol: 'https',
+                hostname: 'fonts.googleapis.com',
+            },
+            {
+                protocol: 'https',
+                hostname: 'fonts.gstatic.com',
+            },
 
         ],
 

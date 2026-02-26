@@ -37,20 +37,20 @@ export function ArticleCard({
         day: 'numeric',
     })
 
-    const readTimeText = read_time ? `${read_time} នាទីអាន` : null
+    const readTimeText = read_time ? `${read_time} minute` : null
 
     return (
         <Link
             href={`/blog/${slug}`}
             className="group block h-full focus:outline-none focus:ring-2 focus:ring-purple-500 rounded-xl transition-transform hover:-translate-y-1"
-            aria-label={`អានអត្ថបទ៖ ${title}`}
+            aria-label={` ${title}`}
         >
             <div className="flex flex-col h-full bg-gray-900/70 backdrop-blur-sm border border-gray-800 rounded-xl overflow-hidden shadow-md hover:shadow-purple-900/30 hover:border-purple-600/60 transition-all duration-300">
                 {/* Image */}
                 <div className="relative aspect-[16/9] overflow-hidden">
                     <Image
                         src={imageSrc}
-                        alt={`រូបភាពគម្របសម្រាប់ ${title}`}
+                        alt={` ${title}`}
                         fill
                         className="object-cover transition-transform duration-500 group-hover:scale-105"
                         sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"

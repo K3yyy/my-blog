@@ -10,15 +10,6 @@ import { Header } from '@/components/Header'
 import { Footer } from '@/components/Footer'
 import { ArticleCard } from '@/components/ArticleCard'
 
-type Article = {
-    slug: string
-    title: string
-    excerpt: string
-    date: string
-    read_time: number | string | null
-    hero_image_url: string | null
-    topics: { title: string; slug?: string | null } | null
-}
 
 export default async function TopicDetailPage({
                                                   params,
