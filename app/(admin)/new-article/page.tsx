@@ -1,281 +1,336 @@
-// app/admin/new-article/page.tsx
 "use client"
 
 import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
-import { supabase } from "@/lib/supabase"
+import { ArrowLeft, Plus, Trash2, Upload } from "lucide-react"
+import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Textarea } from "@/components/ui/textarea"
 import { Label } from "@/components/ui/label"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { toast } from "@/components/ui/use-toast"
+import { Textarea } from "@/components/ui/textarea"
 
-type Topic = {
-    id: string
-    title: string
-    slug: string
+import {createClients} from "@/lib/supabase/client";
+
+
+// Simple slugify
+const slugify = (text: string) =>
+    text
+        .toLowerCase()
+        .trim()
+        .replace(/[^a-z0-9\s-]/g, "")
+        .replace(/[\s_-]+/g, "-")
+        .replace(/^-+|-+$/g, "")
+
+// Convert plain text → nice HTML (double Enter = new paragraph)
+const textToHtml = (text: string): string => {
+    if (!text?.trim()) return "<p>No content available for this page.</p>"
+
+    return text
+        .trim()
+        .split("\n\n")
+        .map((para) => {
+            const clean = para.trim()
+            if (!clean) return ""
+            return `<p>${clean.replace(/\n/g, "<br>")}</p>`
+        })
+        .filter(Boolean)
+        .join("")
 }
 
-export default function NewArticlePage() {
+type Page = {
+    id: string
+    text: string
+    imageFile: File | null
+    imagePreview: string
+}
+
+export default function CreateArticlePage() {
     const router = useRouter()
+    const [loading, setLoading] = useState(false)
 
-    const [topics, setTopics] = useState<Topic[]>([])
-    const [loadingTopics, setLoadingTopics] = useState(true)
+    const [title, setTitle] = useState("")
+    const [slug, setSlug] = useState("")
+    const [author] = useState("Keyy")
+    const [date, setDate] = useState(new Date().toISOString().split("T")[0])
+    const [readTime, setReadTime] = useState("5 min read")
+    const [category, setCategory] = useState("")
+    const [excerpt, setExcerpt] = useState("")
 
-    const [form, setForm] = useState({
-        title: "",
-        slug: "",
-        excerpt: "",
-        topic_id: "",
-        author: "Keyy",
-        read_time: "5 min read",
-        date: new Date().toISOString().split("T")[0],
-        status: "draft",
-        hero_image_url: "",
-        image_urls: "", // one URL per line (optional fallback)
-        sections: "",
-    })
+    const [heroFile, setHeroFile] = useState<File | null>(null)
+    const [heroPreview, setHeroPreview] = useState("")
 
-    const [additionalImages, setAdditionalImages] = useState<File[]>([])
-    const [uploading, setUploading] = useState(false)
+    const [pages, setPages] = useState<Page[]>([])
 
-    // Fetch all topics when page loads
+    // Auto generate slug from title
     useEffect(() => {
-        async function loadTopics() {
-            const { data, error } = await supabase
-                .from("topics")
-                .select("id, title, slug")
-                .order("title")
+        if (title) setSlug(slugify(title))
+    }, [title])
 
-            if (error) {
-                console.error("Failed to load topics:", error)
-                toast({ variant: "destructive", title: "Error", description: "Cannot load topics" })
-            } else {
-                setTopics(data || [])
-            }
-            setLoadingTopics(false)
-        }
-
-        loadTopics()
-    }, [])
-
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-        const { name, value } = e.target
-        setForm(prev => ({ ...prev, [name]: value }))
+    const addPage = () => {
+        setPages((prev) => [
+            ...prev,
+            { id: Date.now().toString(), text: "", imageFile: null, imagePreview: "" },
+        ])
     }
 
-    const handleTopicChange = (value: string) => {
-        setForm(prev => ({ ...prev, topic_id: value }))
+    const removePage = (index: number) => {
+        setPages((prev) => prev.filter((_, i) => i !== index))
     }
 
-    const handleAdditionalImages = (e: React.ChangeEvent<HTMLInputElement>) => {
-        if (e.target.files) {
-            setAdditionalImages(Array.from(e.target.files))
-        }
+    const updatePageText = (index: number, text: string) => {
+        setPages((prev) =>
+            prev.map((p, i) => (i === index ? { ...p, text } : p))
+        )
     }
 
-    // Upload files and get public URLs
-    const uploadImages = async (files: File[]): Promise<string[]> => {
-        const urls: string[] = []
+    const handlePageImage = (index: number, e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0]
+        if (!file) return
 
-        for (const file of files) {
-            const fileExt = file.name.split('.').pop() || 'jpg'
-            const fileName = `${Date.now()}-${Math.random().toString(36).slice(2)}.${fileExt}`
-            const filePath = `articles/${fileName}`
+        setPages((prev) =>
+            prev.map((p, i) =>
+                i === index
+                    ? {
+                        ...p,
+                        imageFile: file,
+                        imagePreview: URL.createObjectURL(file),
+                    }
+                    : p
+            )
+        )
+    }
 
-            const { error: uploadError } = await supabase.storage
-                .from('BLOG-IMAGES')  // ← uppercase!
-                .upload(filePath, file, {
-                    cacheControl: '3600',
-                    upsert: false,
-                })
-
-            if (uploadError) {
-                console.error("Upload error:", uploadError)
-                throw uploadError
-            }
-
-            const { data: urlData } = supabase.storage
-                .from('BLOG-IMAGES')
-                .getPublicUrl(filePath)
-
-            urls.push(urlData.publicUrl)
-        }
-
-        return urls
+    const handleHeroImage = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0]
+        if (!file) return
+        setHeroFile(file)
+        setHeroPreview(URL.createObjectURL(file))
     }
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
-        setUploading(true)
+        if (!title || !slug || !category || pages.length === 0) {
+            alert("Please fill title, category and at least one page")
+            return
+        }
+
+        setLoading(true)
+        const supabase = createClients()
 
         try {
-            let heroUrl = form.hero_image_url
-            let extraImageUrls: string[] = []
+            // 1. Get or create topic
+            let topicId: string
+            const { data: existing } = await supabase
+                .from("topics")
+                .select("id")
+                .eq("title", category.trim())
+                .maybeSingle()
 
-            // Upload hero if file selected
-            const heroInput = document.getElementById('hero_image') as HTMLInputElement
-            if (heroInput?.files?.length) {
-                const urls = await uploadImages(Array.from(heroInput.files))
-                heroUrl = urls[0]
+            if (existing) {
+                topicId = existing.id
+            } else {
+                const { data: newTopic } = await supabase
+                    .from("topics")
+                    .insert({ title: category.trim() })
+                    .select("id")
+                    .single()
+                topicId = newTopic!.id
             }
 
-            // Upload additional images
-            if (additionalImages.length > 0) {
-                extraImageUrls = await uploadImages(additionalImages)
+            // 2. Upload hero image
+            let heroUrl = "/images/placeholder-article.jpg"
+            if (heroFile) {
+                const fileExt = heroFile.name.split(".").pop()
+                const fileName = `${slug}-hero-${Date.now()}.${fileExt}`
+                await supabase.storage.from("article-images").upload(fileName, heroFile)
+                const { data } = supabase.storage.from("article-images").getPublicUrl(fileName)
+                heroUrl = data.publicUrl
             }
 
-            // Split sections
-            const sectionsArray = form.sections
-                .split(/\n\s*\n|\n---\n/)
-                .map(s => s.trim())
-                .filter(Boolean)
+            // 3. Upload page images + convert text to HTML
+            const htmlSections: string[] = []
+            const imageUrls: (string | null)[] = []
 
-            const payload = {
-                title: form.title.trim(),
-                slug: form.slug.trim() || form.title.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, ''),
-                excerpt: form.excerpt.trim(),
-                topic_id: form.topic_id || null,
-                author: form.author.trim(),
-                read_time: form.read_time.trim(),
-                date: form.date,
-                status: form.status,
-                hero_image_url: heroUrl || null,
-                image_urls: extraImageUrls.length > 0 ? extraImageUrls : null,
-                sections: sectionsArray.length > 0 ? sectionsArray : null,
+            for (const page of pages) {
+                htmlSections.push(textToHtml(page.text))
+
+                let imgUrl: string | null = null
+                if (page.imageFile) {
+                    const fileExt = page.imageFile.name.split(".").pop()
+                    const fileName = `${slug}-page-${htmlSections.length}-${Date.now()}.${fileExt}`
+                    await supabase.storage.from("article-images").upload(fileName, page.imageFile)
+                    const { data } = supabase.storage.from("article-images").getPublicUrl(fileName)
+                    imgUrl = data.publicUrl
+                }
+                imageUrls.push(imgUrl)
             }
 
-            const { error } = await supabase.from("articles").insert([payload])
+            // 4. Insert article
+            const { error } = await supabase.from("articles").insert({
+                slug,
+                title,
+                excerpt: excerpt || null,
+                date: new Date(date).toISOString(),
+                author,
+                read_time: readTime,
+                hero_image_url: heroUrl,
+                image_urls: imageUrls,
+                sections: htmlSections,
+                topic_id: topicId,
+                status: "published",
+            })
 
             if (error) throw error
 
-            toast({ title: "Success", description: "Article created!" })
-            router.push("/articles")
+            alert("✅ Article created successfully!")
+            router.push(`/blog/${slug}`)
+            router.refresh()
         } catch (err: any) {
-            toast({ variant: "destructive", title: "Error", description: err.message })
+            console.error(err)
+            alert("Failed to create article: " + err.message)
         } finally {
-            setUploading(false)
+            setLoading(false)
         }
     }
 
     return (
-        <div className="min-h-screen bg-black text-white p-6">
-            <div className="max-w-4xl mx-auto">
-                <h1 className="text-4xl font-bold mb-8">Create New Article</h1>
+        <div className="min-h-screen bg-black text-white py-12">
+            <div className="max-w-4xl mx-auto px-6">
+                <Link
+                    href="/articles"
+                    className="inline-flex items-center gap-2 text-gray-400 hover:text-purple-400 mb-8"
+                >
+                    <ArrowLeft className="h-5 w-5" /> Back to articles
+                </Link>
 
-                <form onSubmit={handleSubmit} className="space-y-6">
-                    {/* Title */}
+                <h1 className="text-5xl font-bold mb-10 bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
+                    Create New Article
+                </h1>
+
+                <form onSubmit={handleSubmit} className="space-y-12">
+                    {/* Basic Info */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <Label>Title</Label>
+                            <Input value={title} onChange={(e) => setTitle(e.target.value)} required />
+                        </div>
+                        <div>
+                            <Label>Slug</Label>
+                            <Input value={slug} onChange={(e) => setSlug(e.target.value)} />
+                        </div>
+
+                        <div>
+                            <Label>Author</Label>
+                            <Input value={author} disabled />
+                        </div>
+                        <div>
+                            <Label>Date</Label>
+                            <Input type="date" value={date} onChange={(e) => setDate(e.target.value)} />
+                        </div>
+
+                        <div>
+                            <Label>Read Time</Label>
+                            <Input value={readTime} onChange={(e) => setReadTime(e.target.value)} />
+                        </div>
+                        <div>
+                            <Label>Category / Topic</Label>
+                            <Input
+                                value={category}
+                                onChange={(e) => setCategory(e.target.value)}
+                                placeholder="e.g. Technology"
+                                required
+                            />
+                        </div>
+                    </div>
+
                     <div>
-                        <Label htmlFor="title">Title *</Label>
-                        <Input id="title" name="title" value={form.title} onChange={handleChange} required />
+                        <Label>Excerpt (optional)</Label>
+                        <Textarea value={excerpt} onChange={(e) => setExcerpt(e.target.value)} rows={3} />
                     </div>
 
-                    {/* Slug */}
+                    {/* Hero Image */}
                     <div>
-                        <Label htmlFor="slug">Slug (auto-generated if empty)</Label>
-                        <Input id="slug" name="slug" value={form.slug} onChange={handleChange} />
+                        <Label>Hero / Cover Image (optional)</Label>
+                        <div className="mt-2 flex items-center gap-4">
+                            <label className="cursor-pointer bg-gray-900 hover:bg-gray-800 border border-gray-700 px-6 py-3 rounded-xl flex items-center gap-2">
+                                <Upload className="h-5 w-5" />
+                                Choose Hero Image
+                                <input type="file" accept="image/*" onChange={handleHeroImage} className="hidden" />
+                            </label>
+                            {heroPreview && <img src={heroPreview} className="h-24 rounded-lg object-cover" />}
+                        </div>
                     </div>
 
-                    {/* Excerpt */}
+                    {/* Pages */}
                     <div>
-                        <Label htmlFor="excerpt">Excerpt / Preview</Label>
-                        <Textarea id="excerpt" name="excerpt" value={form.excerpt} onChange={handleChange} rows={3} />
+                        <div className="flex items-center justify-between mb-6">
+                            <h2 className="text-2xl font-semibold">Article Pages</h2>
+                            <Button type="button" onClick={addPage} className="flex items-center gap-2">
+                                <Plus className="h-5 w-5" /> Add Page
+                            </Button>
+                        </div>
+
+                        <div className="space-y-10">
+                            {pages.map((page, index) => (
+                                <div key={page.id} className="border border-gray-800 bg-gray-950/50 p-8 rounded-2xl">
+                                    <div className="flex justify-between items-center mb-6">
+                                        <h3 className="text-xl font-medium">Page {index + 1}</h3>
+                                        <Button
+                                            type="button"
+                                            variant="ghost"
+                                            size="icon"
+                                            onClick={() => removePage(index)}
+                                            className="text-red-400 hover:text-red-500"
+                                        >
+                                            <Trash2 className="h-5 w-5" />
+                                        </Button>
+                                    </div>
+
+                                    {/* Page Image */}
+                                    <div className="mb-6">
+                                        <Label>Page Image (optional - big visual)</Label>
+                                        <label className="mt-2 block cursor-pointer bg-gray-900 hover:bg-gray-800 border border-gray-700 px-6 py-4 rounded-xl text-center">
+                                            <Upload className="h-6 w-6 mx-auto mb-2" />
+                                            Click to upload image for this page
+                                            <input
+                                                type="file"
+                                                accept="image/*"
+                                                onChange={(e) => handlePageImage(index, e)}
+                                                className="hidden"
+                                            />
+                                        </label>
+                                        {page.imagePreview && (
+                                            <img src={page.imagePreview} className="mt-4 max-h-80 rounded-xl" />
+                                        )}
+                                    </div>
+
+                                    {/* Page Text */}
+                                    <div>
+                                        <Label>
+                                            Content for this page{" "}
+                                            <span className="text-gray-500 text-sm">(double Enter = new paragraph)</span>
+                                        </Label>
+                                        <Textarea
+                                            value={page.text}
+                                            onChange={(e) => updatePageText(index, e.target.value)}
+                                            rows={14}
+                                            className="mt-2 font-mono text-sm"
+                                            placeholder="Start typing here..."
+                                        />
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
                     </div>
 
-                    {/* Topic Dropdown – easy selection */}
-                    <div>
-                        <Label>Topic *</Label>
-                        {loadingTopics ? (
-                            <p className="text-gray-400">Loading topics...</p>
-                        ) : topics.length === 0 ? (
-                            <p className="text-red-400">No topics found. Please add some in the database.</p>
-                        ) : (
-                            <Select value={form.topic_id} onValueChange={handleTopicChange} required>
-                                <SelectTrigger>
-                                    <SelectValue placeholder="Select a topic" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    {topics.map(topic => (
-                                        <SelectItem key={topic.id} value={topic.id}>
-                                            {topic.title}
-                                        </SelectItem>
-                                    ))}
-                                </SelectContent>
-                            </Select>
-                        )}
-                    </div>
-
-                    {/* Read Time */}
-                    <div>
-                        <Label htmlFor="read_time">Read Time</Label>
-                        <Input id="read_time" name="read_time" value={form.read_time} onChange={handleChange} />
-                    </div>
-
-                    {/* Date */}
-                    <div>
-                        <Label htmlFor="date">Date</Label>
-                        <Input id="date" name="date" type="date" value={form.date} onChange={handleChange} />
-                    </div>
-
-                    {/* Status */}
-                    <div>
-                        <Label>Status</Label>
-                        <Select value={form.status} onValueChange={v => setForm(p => ({ ...p, status: v }))}>
-                            <SelectTrigger>
-                                <SelectValue />
-                            </SelectTrigger>
-                            <SelectContent>
-                                <SelectItem value="draft">Draft</SelectItem>
-                                <SelectItem value="published">Published</SelectItem>
-                            </SelectContent>
-                        </Select>
-                    </div>
-
-                    {/* Hero Image Upload */}
-                    <div>
-                        <Label htmlFor="hero_image">Hero Image (upload from device)</Label>
-                        <Input id="hero_image" type="file" accept="image/*" />
-                        <p className="text-xs text-gray-500 mt-1">Optional: you can still paste URL below</p>
-                        <Input
-                            name="hero_image_url"
-                            value={form.hero_image_url}
-                            onChange={handleChange}
-                            placeholder="https://.../hero.jpg (fallback)"
-                            className="mt-2"
-                        />
-                    </div>
-
-                    {/* Additional Images */}
-                    <div>
-                        <Label htmlFor="additional_images">Additional Images (multiple)</Label>
-                        <Input id="additional_images" type="file" accept="image/*" multiple onChange={e => {
-                            if (e.target.files) setAdditionalImages(Array.from(e.target.files))
-                        }} />
-                    </div>
-
-                    {/* Sections */}
-                    <div>
-                        <Label htmlFor="sections">Content (one section per block, separate with --- or empty lines)</Label>
-                        <Textarea
-                            id="sections"
-                            name="sections"
-                            value={form.sections}
-                            onChange={handleChange}
-                            rows={12}
-                            placeholder="Paste your HTML or Markdown here...\n\n---\n\nNext section..."
-                            className="font-mono"
-                        />
-                    </div>
-
-                    <div className="flex justify-end gap-4">
-                        <Button type="button" variant="outline" onClick={() => router.back()}>
-                            Cancel
-                        </Button>
-                        <Button type="submit" disabled={uploading}>
-                            {uploading ? "Saving..." : "Create Article"}
-                        </Button>
-                    </div>
+                    <Button
+                        type="submit"
+                        disabled={loading}
+                        size="lg"
+                        className="w-full text-lg py-7 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700"
+                    >
+                        {loading ? "Creating Article..." : "🚀 Publish Article"}
+                    </Button>
                 </form>
             </div>
         </div>

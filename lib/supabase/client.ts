@@ -2,6 +2,7 @@
 
 import { createClient } from '@supabase/supabase-js'
 import { useMemo } from 'react'
+import {createBrowserClient} from "@supabase/ssr";
 
 // Singleton pattern – only create once
 let cachedClient: ReturnType<typeof createClient> | null = null
@@ -17,8 +18,8 @@ export function getSupabaseClient() {
     return cachedClient
 }
 
-// Optional: React hook version (recommended in components)
-export function useSupabaseClient() {
-    return useMemo(() => getSupabaseClient(), [])
-}
-
+export const createClients = () =>
+    createBrowserClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+    )
