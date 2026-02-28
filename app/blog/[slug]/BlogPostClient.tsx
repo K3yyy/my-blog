@@ -110,10 +110,10 @@ export function BlogPostClient({
                     </h1>
 
                     {/* Meta */}
-                    <div className="flex flex-wrap gap-x-6 gap-y-3 text-sm text-gray-300 mb-10 bg-gray-950/40 backdrop-blur-lg border border-gray-800/50 p-5 rounded-xl shadow-xl">
-                        <div className="flex items-center gap-2">
+                    <div className="flex flex-wrap gap-x-6  gap-y-3 text-sm text-gray-300 mb-10 bg-gray-950/40 backdrop-blur-lg border border-gray-800/50 p-5 rounded-xl shadow-xl">
+                        <div className="flex  items-center sm:gap-5">
                             <Clock className="h-4 w-4 text-blue-400" />
-                            <span>{post.readTime}</span>
+                            <span> {post.readTime}</span>
                         </div>
                         <span className="text-gray-700">•</span>
                         <time dateTime={post.date} className="text-gray-300">
@@ -124,37 +124,7 @@ export function BlogPostClient({
                     </div>
 
                     {/* Share Sidebar (desktop) */}
-                    <div className="hidden lg:block lg:top-24 lg:float-right lg:ml-12 lg:w-14 lg:-mr-48 mb-10 lg:mb-0">
-                        <div className="flex lg:flex-col justify-center gap-16 backdrop-blur-xl border border-gray-800/60 p-2 rounded-2xl shadow-xl">
-                            <Button
-                                variant="ghost"
-                                size="icon"
-                                className="text-purple-400 hover:text-purple-300 hover:bg-purple-950/40"
-                                onClick={() => handleShare("facebook")}
-                                aria-label="Share on Facebook"
-                            >
-                                <Facebook className="h-5 w-5" />
-                            </Button>
-                            <Button
-                                variant="ghost"
-                                size="icon"
-                                className="text-purple-400 hover:text-purple-300 hover:bg-purple-950/40"
-                                onClick={() => handleShare("instagram")}
-                                aria-label="Visit Instagram profile"
-                            >
-                                <Instagram className="h-5 w-5" />
-                            </Button>
-                            <Button
-                                variant="ghost"
-                                size="icon"
-                                className="text-purple-400 hover:text-purple-300 hover:bg-purple-950/40"
-                                onClick={() => handleShare("clipboard")}
-                                aria-label="Copy link to clipboard"
-                            >
-                                <Share2 className="h-5 w-5" />
-                            </Button>
-                        </div>
-                    </div>
+
 
                     {/* Hero Image (cover) */}
                     {/*<div className="relative aspect-[16/9] md:aspect-[21/9] rounded-2xl overflow-hidden mb-14 shadow-2xl shadow-purple-900/20 border border-gray-800/60 group">*/}
@@ -202,6 +172,7 @@ export function BlogPostClient({
                             )
                         )}
                     </div>
+
 
                     {/* Pagination */}
                     <div className="flex items-center justify-center gap-4 sm:gap-8 mt-10 mb-16 px-4">
@@ -272,6 +243,38 @@ export function BlogPostClient({
                                 </h3>
                             </Link>
                         ) : <div />}
+
+                    </div>
+                    <div className=" lg:block lg:top-24 lg:float-center lg:ml-85 lg:w-14 lg:-mr-28 mb-10 lg:mb-0">
+                        <div className="flex lg:flex-row justify-center gap-16  rounded-2xl shadow-xl">
+                            <Button
+                                variant="ghost"
+                                size="icon"
+                                className="text-purple-400 hover:text-purple-300 hover:bg-purple-950/40"
+                                onClick={() => handleShare("facebook")}
+                                aria-label="Share on Facebook"
+                            >
+                                <Facebook className="h-5 w-5" />
+                            </Button>
+                            <Button
+                                variant="ghost"
+                                size="icon"
+                                className="text-purple-400 hover:text-purple-300 hover:bg-purple-950/40"
+                                onClick={() => handleShare("instagram")}
+                                aria-label="Visit Instagram profile"
+                            >
+                                <Instagram className="h-5 w-5" />
+                            </Button>
+                            <Button
+                                variant="ghost"
+                                size="icon"
+                                className="text-purple-400 hover:text-purple-300 hover:bg-purple-950/40"
+                                onClick={() => handleShare("clipboard")}
+                                aria-label="Copy link to clipboard"
+                            >
+                                <Share2 className="h-5 w-5" />
+                            </Button>
+                        </div>
                     </div>
 
                 </article>

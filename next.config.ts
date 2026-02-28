@@ -1,19 +1,18 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
     images: {
-        // Allow images from your real Supabase storage domain
         remotePatterns: [
             {
                 protocol: 'https',
-                hostname: 'ypxmbphviefcnyhowivi.supabase.co',  // ← your project ref from the env
+                hostname: 'ypxmbphviefcnyhowivi.supabase.co',
                 port: '',
-                pathname: '/storage/v1/object/public/**',       // allows all public files
+                pathname: '/storage/v1/object/public/**',
             },
             {
                 protocol: 'https',
                 hostname: 'images.unsplash.com',
                 port: '',
-                pathname: '/**',  // allows any path under the domain
+                pathname: '/**',
             },
             {
                 protocol: 'https',
@@ -23,11 +22,8 @@ const nextConfig = {
                 protocol: 'https',
                 hostname: 'fonts.gstatic.com',
             },
-
         ],
-
-        // Allow quality=82 (optional but fixes the quality warning)
-        qualities: [75, 82],
+        qualities: [75, 82, 85],
     },
 };
 

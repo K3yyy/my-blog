@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { useRouter } from "next/navigation"
+import { useRouter, useParams } from "next/navigation"
 import { ArrowLeft, Plus, Trash2, Upload } from "lucide-react"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
@@ -39,7 +39,6 @@ const textToHtml = (text: string): string => {
 type Topic = {
     id: string
     title: string
-    // Add more fields later if you want (description, icon_name, etc.)
 }
 
 type Page = {
@@ -49,58 +48,109 @@ type Page = {
     imagePreview: string
 }
 
-export default function CreateArticlePage() {
+export default function EditArticlePage() {
     const router = useRouter()
-    const [loading, setLoading] = useState(false)
+    const params = useParams()
+    const slug = params.slug as string
+
+    const [loading, setLoading] = useState(true)
+    const [saving, setSaving] = useState(false)
     const [uploadStatus, setUploadStatus] = useState("")
+
     const [topics, setTopics] = useState<Topic[]>([])
     const [topicsLoading, setTopicsLoading] = useState(true)
     const [topicsError, setTopicsError] = useState("")
 
     const [title, setTitle] = useState("")
-    const [slug, setSlug] = useState("")
     const [author] = useState("Keyy")
-    const [date, setDate] = useState(new Date().toISOString().split("T")[0])
-    const [readTime, setReadTime] = useState("5 min read")
-    const [category, setCategory] = useState("") // Now selected from dropdown
+    const [date, setDate] = useState("")
+    const [readTime, setReadTime] = useState("")
+    const [category, setCategory] = useState("")
     const [excerpt, setExcerpt] = useState("")
-
-    const [heroFile, setHeroFile] = useState<File | null>(null)
     const [heroPreview, setHeroPreview] = useState("")
-
+    const [heroFile, setHeroFile] = useState<File | null>(null)
     const [pages, setPages] = useState<Page[]>([])
 
-    // Fetch all topics on mount
+    // Load article + topics
     useEffect(() => {
-        async function loadTopics() {
-            try {
-                const supabase = createClients()
-                const { data, error } = await supabase
-                    .from("topics")
-                    .select("id, title")
-                    .order("title", { ascending: true })
+        async function loadData() {
+            const supabase = createClients()
 
-                if (error) throw error
-                if (!data || data.length === 0) {
-                    setTopicsError("No topics found. You may need to create some first.")
-                } else {
-                    setTopics(data)
-                }
-            } catch (err: any) {
-                console.error("Failed to load topics:", err)
-                setTopicsError("Failed to load topics: " + (err.message || "Unknown error"))
-            } finally {
-                setTopicsLoading(false)
+            // Load topics
+            const { data: topicsData, error: topicsErr } = await supabase
+                .from("topics")
+                .select("id, title")
+                .order("title")
+
+            if (topicsErr) {
+                setTopicsError("Failed to load topics: " + topicsErr.message)
+            } else {
+                // Fix TS2339 here - explicit type assertion
+                setTopics((topicsData || []) as Topic[])
             }
+            setTopicsLoading(false)
+
+            // Load article
+            const { data: article, error: articleErr } = await supabase
+                .from("articles")
+                .select(`
+          title,
+          date,
+          read_time,
+          excerpt,
+          hero_image_url,
+          sections,
+          image_urls,
+          topic_id,
+          topics!inner (title)
+        `)
+                .eq("slug", slug)
+                .single()
+
+            if (articleErr || !article) {
+                alert("Article not found")
+                router.push("/admin/articles")
+                return
+            }
+
+            setTitle(article.title || "")
+            setDate(article.date ? new Date(article.date).toISOString().split("T")[0] : "")
+            setReadTime(article.read_time || "5 min read")
+            setExcerpt(article.excerpt || "")
+            setHeroPreview(article.hero_image_url || "")
+            // @ts-ignore
+            setCategory(article.topics?.title || "")
+
+            const sections = article.sections || []
+            const imageUrls = article.image_urls || []
+
+            const loadedPages: Page[] = []
+            const max = Math.max(sections.length, imageUrls.length)
+
+            for (let i = 0; i < max; i++) {
+                loadedPages.push({
+                    id: `page-${i}`,
+                    text: sections[i] || "",
+                    imageFile: null,
+                    imagePreview: "",
+                })
+            }
+
+            if (loadedPages.length === 0) {
+                loadedPages.push({
+                    id: "empty",
+                    text: "",
+                    imageFile: null,
+                    imagePreview: "",
+                })
+            }
+
+            setPages(loadedPages)
+            setLoading(false)
         }
 
-        loadTopics()
-    }, [])
-
-    // Auto generate slug from title
-    useEffect(() => {
-        if (title) setSlug(slugify(title))
-    }, [title])
+        loadData()
+    }, [slug, router])
 
     const addPage = () => {
         setPages((prev) => [
@@ -159,49 +209,42 @@ export default function CreateArticlePage() {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
 
-        if (!title.trim() || !slug.trim() || !category.trim() || pages.length === 0) {
-            alert("Please fill title, select a category/topic, and add at least one page")
+        if (!title.trim() || !category.trim() || pages.length === 0) {
+            alert("Title, topic, and at least one page required")
             return
         }
 
-        setLoading(true)
-        setUploadStatus("Starting...")
+        setSaving(true)
+        setUploadStatus("Updating...")
         const supabase = createClients()
 
         try {
-            // 1. Find topic ID from selected title
-            const { data: topic, error: topicError } = await supabase
+            const { data: topic, error: topicErr } = await supabase
                 .from("topics")
                 .select("id")
                 .eq("title", category.trim())
                 .single()
 
-            if (topicError || !topic) {
-                throw new Error("Selected topic not found. Please choose an existing one.")
-            }
+            if (topicErr || !topic) throw new Error("Topic not found")
+
             const topicId = topic.id
 
-            // 2. Upload hero image
-            let heroUrl = "/images/placeholder-article.jpg"
+            let heroUrl = heroPreview
             if (heroFile) {
-                setUploadStatus("Uploading hero image...")
+                setUploadStatus("Uploading new hero image...")
                 const fileExt = heroFile.name.split(".").pop()?.toLowerCase() || "jpg"
-                const fileName = `bjsgsj_0/${slug}-hero-${Date.now()}.${fileExt}`
+                const fileName = `bjsgsj_0/${slug}-hero-update-${Date.now()}.${fileExt}`
 
-                const { error: uploadError } = await supabase.storage
+                const { error } = await supabase.storage
                     .from("blog-images")
                     .upload(fileName, heroFile, { upsert: true })
 
-                if (uploadError) {
-                    console.error("Hero upload error:", uploadError)
-                    throw new Error(`Hero image upload failed: ${uploadError.message}`)
-                }
+                if (error) throw error
 
                 const { data } = supabase.storage.from("blog-images").getPublicUrl(fileName)
                 heroUrl = data.publicUrl
             }
 
-            // 3. Upload page images + convert text
             const htmlSections: string[] = []
             const imageUrls: (string | null)[] = []
 
@@ -213,16 +256,13 @@ export default function CreateArticlePage() {
                 if (page.imageFile) {
                     setUploadStatus(`Uploading image for page ${i + 1}...`)
                     const fileExt = page.imageFile.name.split(".").pop()?.toLowerCase() || "jpg"
-                    const fileName = `bjsgsj_0/${slug}-page-${htmlSections.length}-${Date.now()}.${fileExt}`
+                    const fileName = `bjsgsj_0/${slug}-page-${i + 1}-${Date.now()}.${fileExt}`
 
-                    const { error: uploadError } = await supabase.storage
+                    const { error } = await supabase.storage
                         .from("blog-images")
                         .upload(fileName, page.imageFile, { upsert: true })
 
-                    if (uploadError) {
-                        console.error(`Page ${i + 1} upload error:`, uploadError)
-                        throw new Error(`Page ${i + 1} image upload failed: ${uploadError.message}`)
-                    }
+                    if (error) throw error
 
                     const { data } = supabase.storage.from("blog-images").getPublicUrl(fileName)
                     imgUrl = data.publicUrl
@@ -230,41 +270,42 @@ export default function CreateArticlePage() {
                 imageUrls.push(imgUrl)
             }
 
-            // 4. Insert article
-            setUploadStatus("Saving article...")
-            const { error: insertError } = await supabase.from("articles").insert({
-                slug,
-                title,
-                excerpt: excerpt.trim() || null,
-                date: new Date(date).toISOString(),
-                author,
-                read_time: readTime,
-                hero_image_url: heroUrl,
-                image_urls: imageUrls,
-                sections: htmlSections,
-                topic_id: topicId,
-                status: "published",
-            })
+            setUploadStatus("Saving changes...")
+            const { error: updateError } = await supabase
+                .from("articles")
+                .update({
+                    title,
+                    excerpt: excerpt.trim() || null,
+                    date: new Date(date).toISOString(),
+                    read_time: readTime,
+                    hero_image_url: heroUrl,
+                    image_urls: imageUrls,
+                    sections: htmlSections,
+                    topic_id: topicId,
+                })
+                .eq("slug", slug)
 
-            if (insertError) throw insertError
+            if (updateError) throw updateError
 
-            alert("✅ Article created successfully!")
+            alert("✅ Article updated successfully!")
             router.push(`/blog/${slug}`)
             router.refresh()
         } catch (err: any) {
-            console.error("Submit error:", err)
-            alert("Failed to create article:\n" + (err.message || "Unknown error. Check console."))
+            console.error("Update error:", err)
+            alert("Failed to update article:\n" + (err.message || "Unknown error"))
         } finally {
-            setLoading(false)
+            setSaving(false)
             setUploadStatus("")
         }
     }
+
+    if (loading) return <div className="text-center py-20 text-gray-400">Loading article...</div>
 
     return (
         <div className="min-h-screen bg-black text-white py-12">
             <div className="max-w-4xl mx-auto px-6">
                 <Link
-                    href="/articles"
+                    href="/admin/articles"
                     className="inline-flex items-center gap-2 text-gray-400 hover:text-purple-400 mb-8"
                 >
                     <ArrowLeft className="h-5 w-5" />
@@ -272,19 +313,18 @@ export default function CreateArticlePage() {
                 </Link>
 
                 <h1 className="text-5xl font-bold mb-10 bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
-                    Create New Article
+                    Edit Article
                 </h1>
 
                 <form onSubmit={handleSubmit} className="space-y-12">
-                    {/* Basic Info */}
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div>
                             <Label>Title</Label>
                             <Input value={title} onChange={(e) => setTitle(e.target.value)} required />
                         </div>
                         <div>
-                            <Label>Slug</Label>
-                            <Input value={slug} onChange={(e) => setSlug(e.target.value)} />
+                            <Label>Slug (cannot change)</Label>
+                            <Input value={slug} disabled />
                         </div>
                         <div>
                             <Label>Author</Label>
@@ -326,20 +366,18 @@ export default function CreateArticlePage() {
                         <Textarea value={excerpt} onChange={(e) => setExcerpt(e.target.value)} rows={3} />
                     </div>
 
-                    {/* Hero Image */}
                     <div>
-                        <Label>Hero / Cover Image (optional)</Label>
+                        <Label>Hero / Cover Image</Label>
                         <div className="mt-2 flex items-center gap-4">
                             <label className="cursor-pointer bg-gray-900 hover:bg-gray-800 border border-gray-700 px-6 py-3 rounded-xl flex items-center gap-2">
                                 <Upload className="h-5 w-5" />
-                                Choose Hero Image
+                                Replace Hero Image
                                 <input type="file" accept="image/*" onChange={handleHeroImage} className="hidden" />
                             </label>
-                            {heroPreview && <img src={heroPreview} alt="Hero preview" className="h-24 rounded-lg object-cover" />}
+                            {heroPreview && <img src={heroPreview} alt="Current hero" className="h-24 rounded-lg object-cover" />}
                         </div>
                     </div>
 
-                    {/* Pages */}
                     <div>
                         <div className="flex items-center justify-between mb-6">
                             <h2 className="text-2xl font-semibold">Article Pages</h2>
@@ -365,10 +403,10 @@ export default function CreateArticlePage() {
                                     </div>
 
                                     <div className="mb-6">
-                                        <Label>Page Image (optional - big visual)</Label>
+                                        <Label>Page Image</Label>
                                         <label className="mt-2 block cursor-pointer bg-gray-900 hover:bg-gray-800 border border-gray-700 px-6 py-4 rounded-xl text-center">
                                             <Upload className="h-6 w-6 mx-auto mb-2" />
-                                            Click to upload image for this page
+                                            Click to upload/replace image
                                             <input
                                                 type="file"
                                                 accept="image/*"
@@ -377,21 +415,18 @@ export default function CreateArticlePage() {
                                             />
                                         </label>
                                         {page.imagePreview && (
-                                            <img src={page.imagePreview} alt={`Page ${index + 1} preview`} className="mt-4 max-h-80 rounded-xl" />
+                                            <img src={page.imagePreview} alt={`Page ${index + 1}`} className="mt-4 max-h-80 rounded-xl" />
                                         )}
                                     </div>
 
                                     <div>
-                                        <Label>
-                                            Content for this page{" "}
-                                            <span className="text-gray-500 text-sm">(double Enter = new paragraph)</span>
-                                        </Label>
+                                        <Label>Content</Label>
                                         <Textarea
                                             value={page.text}
                                             onChange={(e) => updatePageText(index, e.target.value)}
                                             rows={14}
                                             className="mt-2 font-mono text-sm"
-                                            placeholder="Start typing here..."
+                                            placeholder="Edit page content..."
                                         />
                                     </div>
                                 </div>
@@ -399,17 +434,15 @@ export default function CreateArticlePage() {
                         </div>
                     </div>
 
-                    {uploadStatus && (
-                        <div className="text-center text-purple-400 font-medium">{uploadStatus}</div>
-                    )}
+                    {uploadStatus && <div className="text-center text-purple-400 font-medium">{uploadStatus}</div>}
 
                     <Button
                         type="submit"
-                        disabled={loading || topicsLoading}
+                        disabled={saving}
                         size="lg"
                         className="w-full text-lg py-7 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700"
                     >
-                        {loading ? "Creating Article..." : "🚀 Publish Article"}
+                        {saving ? "Updating..." : "💾 Save Changes"}
                     </Button>
                 </form>
             </div>

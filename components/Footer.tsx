@@ -58,7 +58,7 @@ export function Footer() {
 
                 {/* Bottom bar */}
                 <div className="mt-12 pt-8 border-t border-gray-800 text-center text-sm text-gray-500">
-                    <p>© {currentYear} KeyyVerse. All rights reserved.</p>
+                    <p>© {currentYear} Owned Keyy. All rights reserved.</p>
                 </div>
             </div>
         </footer>
