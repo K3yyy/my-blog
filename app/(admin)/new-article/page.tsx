@@ -61,7 +61,7 @@ export default function CreateArticlePage() {
     const [slug, setSlug] = useState("")
     const [author] = useState("Keyy")
     const [date, setDate] = useState(new Date().toISOString().split("T")[0])
-    const [readTime, setReadTime] = useState("5 min read")
+    const [readTime, setReadTime] = useState("5 min")
     const [category, setCategory] = useState("") // Now selected from dropdown
     const [excerpt, setExcerpt] = useState("")
 

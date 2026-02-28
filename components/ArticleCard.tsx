@@ -37,7 +37,7 @@ export function ArticleCard({
         day: 'numeric',
     })
 
-    const readTimeText = read_time ? `${read_time} minute` : null
+    const readTimeText = read_time ? `${read_time} Read` : null
 
     return (
         <Link
