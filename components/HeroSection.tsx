@@ -35,13 +35,13 @@ export function HeroSection({ onNewsletterClick }: HeroSectionProps) {
                 </div>
                 <div className="relative h-[400px] rounded-xl overflow-hidden border border-gray-800">
                     <Image
-                        src="/img.png"
+                        src="/hero1.jpg"
                         alt="Surreal weird scene full of strange and unexpected elements"
                         fill
                         className="object-cover"
                         priority
                     />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black to-transparent" />
+                    <div className="absolute inset-0 bg-gradient-to-t to-transparent" />
                 </div>
             </div>
         </section>

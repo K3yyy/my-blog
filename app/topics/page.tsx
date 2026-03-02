@@ -7,7 +7,7 @@ import { Footer } from "@/components/Footer"
 import { Header } from "@/components/Header"
 import { TopicCard } from "@/components/TopicCard"
 import { TopicsLoading } from "@/components/LoadingSkeleton"
-import { Brain, BrainCircuit, FlaskConical, HeartHandshake, Lightbulb, Sparkles } from "lucide-react"
+import {BookOpen, Brain, BrainCircuit, FlaskConical, HeartHandshake, Lightbulb, Sparkles} from "lucide-react"
 
 import { getSupabaseClient } from "@/lib/supabase/client"
 
@@ -19,6 +19,7 @@ const iconMap: Record<string, JSX.Element> = {
     FlaskConical: <FlaskConical className="h-6 w-6" />,
     Brain: <Brain className="h-6 w-6" />,
     HeartHandshake: <HeartHandshake className="h-6 w-6" />,
+    BookOpen: <BookOpen className="w-6 h-6" />,
     default: <Brain className="h-6 w-6" />,
 }
 

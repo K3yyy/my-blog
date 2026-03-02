@@ -83,7 +83,7 @@ export default function Home() {
                 <HeroSection onNewsletterClick={scrollToNewsletter} />
 
                 <h4 className="text-sm font-medium text-gray-400 mb-3 tracking-wide uppercase">
-                    Recently Posted
+                    Recently article Posted
                 </h4>
 
                 <div className="flex flex-col gap-y-16">
