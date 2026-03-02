@@ -94,7 +94,7 @@ export function Header({ onSubscribeClick }: HeaderProps) {
                         </Button>
 
 
-                        <Link href="/set-article" className="hidden md:flex">
+                        <Link href="/admin/set-article" className="hidden md:flex">
                             <Button
                                 variant="outline"
                                 className="bg-black border-blue-500 text-blue-500 hover:bg-blue-500 hover:text-white transition-colors"
@@ -186,7 +186,7 @@ export function Header({ onSubscribeClick }: HeaderProps) {
                         </Button>
 
                         {/* Keyy Only - secondary / admin action */}
-                        <Link href="/set-article" className="block w-full">
+                        <Link href="/admin/set-article" className="block w-full">
                             <Button
                                 className="w-full bg-gradient-to-r bg-black from-blue-600 to-blue-700 hover:from-blue-500 hover:to-blue-600 text-white py-7 text-lg font-medium shadow-lg shadow-purple-900/30 transition-all duration-300"
                             >
