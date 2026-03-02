@@ -84,13 +84,27 @@ export function Header({ onSubscribeClick }: HeaderProps) {
                     </nav>
 
                     {/* Desktop Subscribe Button */}
-                    <Button
-                        variant="outline"
-                        className="hidden md:flex border-blue-500/60 text-blue-400 hover:bg-blue-950/40 hover:text-blue-300 hover:border-blue-400 transition-all duration-300"
-                        onClick={onSubscribeClick}
-                    >
-                        Subscribe
-                    </Button>
+                    <div className="flex items-center justify-between">
+                        <Button
+                            variant="outline"
+                            className="hidden md:flex border-blue-500/60 text-blue-400 hover:bg-blue-950/40 hover:text-blue-300 hover:border-blue-400 transition-all duration-300"
+                            onClick={onSubscribeClick}
+                        >
+                            Subscribe
+                        </Button>
+
+
+                        <Link href="/set-article" className="hidden md:flex">
+                            <Button
+                                variant="outline"
+                                className="bg-black border-blue-500 text-blue-500 hover:bg-blue-500 hover:text-white transition-colors"
+                            >
+                                Keyy Only
+                            </Button>
+                        </Link>
+                    </div>
+
+
 
                     {/* Mobile Hamburger */}
                     <button
@@ -110,6 +124,7 @@ export function Header({ onSubscribeClick }: HeaderProps) {
 
             {/* Invisible spacer to prevent content overlap */}
             <div className="h-20 md:h-24" aria-hidden="true" />
+
 
             {/* Mobile Slide-in Menu */}
             <div
@@ -158,7 +173,8 @@ export function Header({ onSubscribeClick }: HeaderProps) {
                     </nav>
 
                     {/* Subscribe at bottom */}
-                    <div className="mt-auto pb-8">
+                    <div className="mt-auto pb-8 space-y-4">
+                        {/* Subscribe Now - primary action */}
                         <Button
                             className="w-full bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-500 hover:to-blue-600 text-white py-7 text-lg font-medium shadow-lg shadow-purple-900/30 transition-all duration-300"
                             onClick={() => {
@@ -168,7 +184,17 @@ export function Header({ onSubscribeClick }: HeaderProps) {
                         >
                             Subscribe Now
                         </Button>
+
+                        {/* Keyy Only - secondary / admin action */}
+                        <Link href="/set-article" className="block w-full">
+                            <Button
+                                className="w-full bg-gradient-to-r bg-black from-blue-600 to-blue-700 hover:from-blue-500 hover:to-blue-600 text-white py-7 text-lg font-medium shadow-lg shadow-purple-900/30 transition-all duration-300"
+                            >
+                                Keyy Only
+                            </Button>
+                        </Link>
                     </div>
+
                 </div>
             </div>
 

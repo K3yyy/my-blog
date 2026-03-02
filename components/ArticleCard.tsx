@@ -31,11 +31,11 @@ export function ArticleCard({
 
     const imageSrc = hero_image_url || '/images/article-placeholder.jpg'
 
-    const formattedDate = new Date(date).toLocaleDateString('km-KH', {
+    const formattedDate = new Date(date).toLocaleDateString('en-US', {
         year: 'numeric',
         month: 'long',
         day: 'numeric',
-    })
+    });
 
     const readTimeText = read_time ? `${read_time} Read` : null
 
