@@ -1,63 +1,40 @@
-// proxy.ts
-import { NextResponse } from 'next/server'
-import type { NextRequest } from 'next/server'
+import { createServerClient } from '@supabase/ssr'
+import { NextResponse, type NextRequest } from 'next/server'
 
-export function proxy(request: NextRequest) {
-    // Protected paths (now with /admin/ prefix)
-    const protectedPaths = [
-        '/admin/edit-article',
-        '/admin/new-article',
-        '/admin/set-article',
-    ]
+export async function proxy(request: NextRequest) {
+    let supabaseResponse = NextResponse.next({ request })
 
-    const isProtected = protectedPaths.some(path =>
-        request.nextUrl.pathname.startsWith(path)
+    const supabase = createServerClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+        {
+            cookies: {
+                getAll() { return request.cookies.getAll() },
+                setAll(cookiesToSet) {
+                    cookiesToSet.forEach(({ name, value }) =>
+                        request.cookies.set(name, value)
+                    )
+                    supabaseResponse = NextResponse.next({ request })
+                    cookiesToSet.forEach(({ name, value, options }) =>
+                        supabaseResponse.cookies.set(name, value, options)
+                    )
+                },
+            },
+        }
     )
 
-    if (!isProtected) {
-        return NextResponse.next()
+    const { data: { user } } = await supabase.auth.getUser()
+
+    if (!user && request.nextUrl.pathname.startsWith('/admin')) {
+        const url = request.nextUrl.clone()
+        url.pathname = '/login'
+        url.searchParams.set('redirect', request.nextUrl.pathname)
+        return NextResponse.redirect(url)
     }
 
-    // Basic Auth popup
-    const authHeader = request.headers.get('authorization')
-
-    if (!authHeader) {
-        return new NextResponse('if you are not Keyy, This route is not for you!!', {
-            status: 401,
-            headers: { 'WWW-Authenticate': 'Basic realm="Admin Area"' },
-        })
-    }
-
-    const [scheme, encoded] = authHeader.split(' ')
-    if (scheme?.toLowerCase() !== 'basic' || !encoded) {
-        return new NextResponse('Invalid authentication format', { status: 401 })
-    }
-
-    const decoded = Buffer.from(encoded, 'base64').toString()
-    const [username, password] = decoded.split(':', 2)
-
-    const expectedUsername = process.env.ADMIN_USERNAME || 'keyy'
-    const expectedPassword = process.env.ADMIN_PASSWORD
-
-    if (!expectedPassword) {
-        console.error('ADMIN_PASSWORD is not set!')
-        return new NextResponse('Server error', { status: 500 })
-    }
-
-    if (username === expectedUsername && password === expectedPassword) {
-        return NextResponse.next()
-    }
-
-    return new NextResponse('if you are not Keyy, This route is not for you!!', {
-        status: 401,
-        headers: { 'WWW-Authenticate': 'Basic realm="Admin Area"' },
-    })
+    return supabaseResponse
 }
 
 export const config = {
-    matcher: [
-        '/admin/edit-article/:path*',
-        '/admin/new-article',
-        '/admin/set-article',
-    ],
+    matcher: ['/admin/:path*'],
 }
