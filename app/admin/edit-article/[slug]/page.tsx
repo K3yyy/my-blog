@@ -252,7 +252,8 @@ export default function EditArticlePage() {
                 const page = pages[i]
                 htmlSections.push(textToHtml(page.text))
 
-                let imgUrl: string | null = null
+
+                let imgUrl: string | null = page.imagePreview || null  // keep existing URL
                 if (page.imageFile) {
                     setUploadStatus(`Uploading image for page ${i + 1}...`)
                     const fileExt = page.imageFile.name.split(".").pop()?.toLowerCase() || "jpg"
@@ -265,7 +266,7 @@ export default function EditArticlePage() {
                     if (error) throw error
 
                     const { data } = supabase.storage.from("blog-images").getPublicUrl(fileName)
-                    imgUrl = data.publicUrl
+                    imgUrl = data.publicUrl  // overwrite only if new file uploaded
                 }
                 imageUrls.push(imgUrl)
             }
