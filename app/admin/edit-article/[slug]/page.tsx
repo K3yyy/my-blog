@@ -132,7 +132,7 @@ export default function EditArticlePage() {
                     id: `page-${i}`,
                     text: sections[i] || "",
                     imageFile: null,
-                    imagePreview: "",
+                    imagePreview: imageUrls[i] || "",
                 })
             }
 
