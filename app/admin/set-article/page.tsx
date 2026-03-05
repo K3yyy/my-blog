@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
-import { Pencil, Search, Trash2 } from "lucide-react"
+import {LogOut, Pencil, Search, Trash2} from "lucide-react"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -80,14 +80,27 @@ export default function AdminArticlesPage() {
     return (
         <div className="min-h-screen bg-black text-white py-8 px-4 sm:py-12 sm:px-6 lg:px-8">
             <div className="max-w-7xl mx-auto">
-                {/* Header */}
                 <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6 mb-10">
                     <h1 className="text-4xl sm:text-5xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
                         Manage Articles
                     </h1>
-                    <Button asChild className="bg-purple-600 hover:bg-purple-700 w-full sm:w-auto">
-                        <Link href="new-article">+ Create New Article</Link>
-                    </Button>
+                    <div className="flex items-center gap-3 w-full sm:w-auto">
+                        <Button asChild className="bg-purple-600 hover:bg-purple-700 flex-1 sm:flex-none">
+                            <Link href="new-article">+ Create New Article</Link>
+                        </Button>
+                        <Button
+                            variant="ghost"
+                            className="text-gray-400 hover:text-red-400 border border-gray-800 hover:border-red-400/50"
+                            onClick={async () => {
+                                const supabase = createClients()
+                                await supabase.auth.signOut()
+                                router.push("/admin/login")
+                            }}
+                        >
+                            <LogOut className="h-4 w-4 mr-2" />
+                            Logout
+                        </Button>
+                    </div>
                 </div>
 
                 {/* Card */}

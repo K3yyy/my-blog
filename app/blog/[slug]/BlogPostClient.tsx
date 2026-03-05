@@ -123,40 +123,35 @@ export function BlogPostClient({
                         <span className="italic">By {post.author}</span>
                     </div>
 
-                    {/* Share Sidebar (desktop) */}
 
-
-                    {/* Hero Image (cover) */}
-                    {/*<div className="relative aspect-[16/9] md:aspect-[21/9] rounded-2xl overflow-hidden mb-14 shadow-2xl shadow-purple-900/20 border border-gray-800/60 group">*/}
-                    {/*    <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent z-10" />*/}
-                    {/*    <Image*/}
-                    {/*        src={post.image}*/}
-                    {/*        alt={`Cover image for ${post.title}`}*/}
-                    {/*        fill*/}
-                    {/*        className="object-cover transition-transform duration-700 group-hover:scale-105"*/}
-                    {/*        priority*/}
-                    {/*        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 85vw, 1100px"*/}
-                    {/*    />*/}
-                    {/*          </div>*/}
 
                     {/* ─── Per-page image + text ─── */}
                      <div className="mb-16 space-y-10 md:space-y-12">
 
                         {/* Image – only if we have one for this page */}
-                        {currentImage && (
-                            <div className="relative rounded-2xl overflow-hidden shadow-2xl border border-gray-800/40 bg-gray-950">
-                                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent z-10" />
-                                <Image
-                                    src={currentImage}
-                                    alt={`${post.title} – visual ${currentPage + 1}`}
-                                    width={1200}
-                                    height={800}
-                                    className="w-full aspect-[16/10] md:aspect-[16/9] object-cover"
-                                    quality={85}
-                                    priority={currentPage < 3}
-                                />
-                            </div>
-                        )}
+                         {currentImage && (
+                             <div className="relative rounded-2xl overflow-hidden shadow-2xl border border-gray-800/40 bg-gray-950">
+                                 <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent z-10" />
+                                 <div className="relative w-full aspect-[16/10] md:aspect-[16/9]">
+                                     {/* Skeleton shimmer shown while image loads */}
+                                     <div className="absolute inset-0 bg-gray-800 animate-pulse rounded-2xl" />
+                                     <Image
+                                         key={currentImage}
+                                         src={currentImage}
+                                         alt={`${post.title} – visual ${currentPage + 1}`}
+                                         fill
+                                         className="object-cover transition-opacity duration-500 opacity-0"
+                                         quality={85}
+                                         priority={currentPage < 3}
+                                         onLoad={(e) => {
+                                             // fade in once loaded
+                                             (e.target as HTMLImageElement).classList.remove("opacity-0"),
+                                             (e.target as HTMLImageElement).classList.add("opacity-100")
+                                         }}
+                                     />
+                                 </div>
+                             </div>
+                         )}
 
                         {/* Text – only if we have text for this page */}
                         {currentText ? (
