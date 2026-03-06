@@ -1,12 +1,10 @@
-// app/blog/[slug]/page.tsx
-// SERVER COMPONENT – no "use client"
-
 import { notFound } from 'next/navigation'
 import { Footer } from '@/components/Footer'
 import { createSupabaseServer } from '@/lib/supabase/server'
 import {BlogPostClient} from "@/app/blog/[slug]/BlogPostClient";
 
-
+// Force dynamic — always fetch fresh, never serve stale 404
+export const dynamic = 'force-dynamic'
 
 // Supabase row shape (loose types from query)
 type ArticleResponse = {
@@ -62,26 +60,41 @@ export default async function BlogPostPage({
 
     const supabase = await createSupabaseServer()
 
-    // Do NOT use .single() — it throws when 0 rows
-    const { data: rawArticles, error } = await supabase
-        .from('articles')
-        .select(`
-      slug,
-      title,
-      excerpt,
-      date,
-      read_time,
-      image_urls,
-      hero_image_url,
-      sections,
-      topics!topic_id (title)
-    `)
-        .eq('slug', slug)
-        .eq('status', 'published')
-        .limit(1) // expect at most 1 row
+    // Retry once on failure to handle Supabase cold starts / transient errors
+    let rawArticles = null
+    let error = null
+
+    for (let attempt = 0; attempt < 2; attempt++) {
+        const result = await supabase
+            .from('articles')
+            .select(`
+              slug,
+              title,
+              excerpt,
+              date,
+              read_time,
+              image_urls,
+              hero_image_url,
+              sections,
+              topics!topic_id (title)
+            `)
+            .eq('slug', slug)
+            .eq('status', 'published')
+            .limit(1)
+
+        if (!result.error && result.data && result.data.length > 0) {
+            rawArticles = result.data
+            error = null
+            break
+        }
+
+        error = result.error
+        // Small wait before retry
+        if (attempt === 0) await new Promise(r => setTimeout(r, 300))
+    }
 
     if (error) {
-        console.error('Supabase fetch error:', error.message)
+        console.error('Supabase fetch error after retries:', error.message)
         notFound()
     }
 
@@ -116,23 +129,3 @@ export default async function BlogPostPage({
         </div>
     )
 }
-
-// // Pre-render all published slugs (static generation)
-// export async function generateStaticParams() {
-//     // Use anon client for static generation (no cookies!)
-//     const { createClient } = await import('@supabase/supabase-js')
-//
-//     const supabaseStatic = createClient(
-//         process.env.NEXT_PUBLIC_SUPABASE_URL!,
-//         process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-//     )
-//
-//     const { data: articles } = await supabaseStatic
-//         .from('articles')
-//         .select('slug')
-//         .eq('status', 'published')
-//
-//     return (articles ?? []).map(article => ({
-//         slug: article.slug!,
-//     }))
-// }
