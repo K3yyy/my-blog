@@ -55,7 +55,7 @@ export default function Home() {
                     )
                     .eq("status", "published")
                     .order("date", { ascending: false })
-                    .limit(2);
+                    .limit(3);
 
                 if (error) {
                     console.error("Error fetching recent articles:", error.message);

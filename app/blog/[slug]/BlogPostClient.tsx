@@ -140,7 +140,7 @@ export function BlogPostClient({
                                          src={currentImage}
                                          alt={`${post.title} – visual ${currentPage + 1}`}
                                          fill
-                                         className="object-cover transition-opacity duration-500 opacity-0"
+                                         className="object-contain transition-opacity duration-500 opacity-0"
                                          quality={85}
                                          priority={currentPage < 3}
                                          onLoad={(e) => {

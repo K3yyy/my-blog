@@ -20,17 +20,17 @@ export default function AboutPage() {
 
                     <div className="prose prose-invert prose-purple max-w-none">
                         <p className="text-xl text-gray-300 mb-8">
-                            Keyyverse is all about <strong>Discover the Weird, Enjoy Life, Learn Something Unexpected Every Day</strong>.
+                            Keyy<strong className="text-blue-500">Verse</strong> is all about <strong>Discover the Weird, Enjoy Life, Learn Something Unexpected Every Day</strong>.
                         </p>
 
                         <p className="mb-8">
-                            Life feels predictable—until it throws you a curveball that makes you laugh, gasp, or just stare in disbelief. One minute you're going about your day, the next you're hit with the knowledge that strawberries aren't berries... but bananas are.
+                            Life feels predictable until it throws you a curveball that makes you laugh, gasp, or just stare in disbelief. One minute you're going about your day, the next you're hit with the knowledge that strawberries aren't berries... but bananas are.
                         </p>
 
 
 
                         <p className="mb-8">
-                            Or that octopuses have three hearts, blue blood, and can instantly change color and texture to vanish into the background—or just to troll a nearby fish for fun.
+                            Or that octopuses have three hearts, blue blood, and can instantly change color and texture to vanish into the background or just to troll a nearby fish for fun.
                         </p>
 
 
@@ -38,7 +38,7 @@ export default function AboutPage() {
 
                         <h2 className="text-blue-500 font-bold">Mission</h2>
                         <p>
-                            We chase down the strangest corners of the world—bizarre historical coincidences, mind-bending animal quirks, random life moments that feel scripted by a prankster universe—and share them in a way that's fun, lighthearted, and impossible to forget. The goal? Spark that tiny "wait, really?" moment that turns an ordinary Tuesday into something magical.
+                            We chase down the strangest corners of the world bizarre historical coincidences, mind-bending animal quirks, random life moments that feel scripted by a prankster universe and share them in a way that's fun, lighthearted, and impossible to forget. The goal? Spark that tiny "wait, really?" moment that turns an ordinary Tuesday into something magical.
                         </p>
 
                         <h2 className="text-blue-500 font-bold">What We Dive Into</h2>
@@ -62,7 +62,7 @@ export default function AboutPage() {
 
                         <h2 className="text-blue-500 font-bold">Our Vibe</h2>
                         <p>
-                            Run by one curious weirdo (hey, that's me—Keyy!) who believes learning shouldn't feel like school—it should feel like eavesdropping on the universe's best inside jokes. We keep it accessible, silly when it wants to be, mind-bending when it needs to, and always celebratory of life's glorious unpredictability.
+                            Run by one curious weirdo (hey, that's me Keyy!) who believes learning shouldn't feel like school it should feel like eavesdropping on the universe's best inside jokes. We keep it accessible, silly when it wants to be, mind-bending when it needs to, and always celebratory of life's glorious unpredictability.
                         </p>
 
 
